@@ -11,15 +11,23 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { useAuthStore } from '@/store/useAuthStore';
 import { TaskStatusCard } from './components/status-card';
+import { CreateTaskModal } from './components/create-task-modal';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const fullName = user ? `${user.first_name} ${user.last_name}` : 'User';
 
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const handleCreateTask = () => {
+    setIsModalOpen(true);
+  };
 
-  }
+  const handleSubmitTask = (taskData: any) => {
+    console.log('New Task Data:', taskData);
+    // In a real app, this would call an API or update a store
+    setIsModalOpen(false);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -62,6 +70,12 @@ export default function DashboardPage() {
           />
         </Grid>
       </Grid>
+
+      <CreateTaskModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleSubmitTask}
+      />
     </Container>
   );
 }
