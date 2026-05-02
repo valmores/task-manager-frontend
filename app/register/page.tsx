@@ -7,9 +7,9 @@ import {
   Typography,
 } from '@mui/material';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <Box
       sx={{
@@ -42,14 +42,14 @@ export default function LoginPage() {
           >
             <Box sx={{ textAlign: 'center' }}>
               <Typography component="h1" variant="h4" color="primary" sx={{ mb: 1 }}>
-                Welcome back
+                Create account
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Please enter your details to sign in to your account
+                Join us to start managing your tasks more effectively
               </Typography>
             </Box>
 
-            <LoginForm />
+            <RegisterForm />
           </Box>
         </Box>
       </Container>
