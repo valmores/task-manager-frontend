@@ -30,7 +30,7 @@ export default function LoginPage() {
   const isDarkMode = theme.palette.mode === 'dark';
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
-
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +90,7 @@ export default function LoginPage() {
             }}
           >
             <Box sx={{ textAlign: 'center' }}>
-              <Typography component="h1" variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+              <Typography component="h1" variant="h4" color="primary" sx={{ mb: 1 }}>
                 Welcome back
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -121,7 +121,7 @@ export default function LoginPage() {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <EmailIcon fontSize="small" />
+                          <EmailIcon fontSize="small" color="action" />
                         </InputAdornment>
                       ),
                     },
@@ -143,7 +143,7 @@ export default function LoginPage() {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockIcon fontSize="small" />
+                          <LockIcon fontSize="small" color="action" />
                         </InputAdornment>
                       ),
                     },
@@ -160,11 +160,7 @@ export default function LoginPage() {
                   mt: 4,
                   mb: 3,
                   py: 1.5,
-                  bgcolor: isDarkMode ? 'grey.100' : 'grey.900',
-                  color: isDarkMode ? 'grey.900' : 'grey.100',
-                  '&:hover': {
-                    bgcolor: isDarkMode ? 'grey.300' : 'grey.800',
-                  },
+                  fontSize: '1rem',
                 }}
               >
                 {isLoading ? (
@@ -181,7 +177,8 @@ export default function LoginPage() {
                     component={NextLink}
                     href="/register"
                     underline="hover"
-                    sx={{ fontWeight: 'medium', color: 'text.primary' }}
+                    color="primary"
+                    sx={{ fontWeight: 600 }}
                   >
                     Sign up
                   </MuiLink>
