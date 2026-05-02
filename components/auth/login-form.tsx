@@ -46,8 +46,9 @@ export function LoginForm() {
     //   });
 
     //   setAuth(profileRes.data, access, refresh);
-    //   router.push('/tasks');
+    //   router.push('/dashboard');
     // } catch (err: any) {
+
     //   setError(err.response?.data?.detail || 'Invalid email or password');
     // } finally {
     setIsLoading(false);
