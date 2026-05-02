@@ -93,6 +93,33 @@ export function Navbar() {
               TaskMaster
             </Typography>
           </MuiLink>
+          
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3, ml: 4, flexGrow: 1 }}>
+            <MuiLink
+              component={NextLink}
+              href="/dashboard"
+              sx={{ 
+                color: 'text.primary', 
+                textDecoration: 'none', 
+                fontWeight: 600,
+                '&:hover': { color: 'primary.main' }
+              }}
+            >
+              Dashboard
+            </MuiLink>
+            <MuiLink
+              component={NextLink}
+              href="/tasks"
+              sx={{ 
+                color: 'text.primary', 
+                textDecoration: 'none', 
+                fontWeight: 600,
+                '&:hover': { color: 'primary.main' }
+              }}
+            >
+              Tasks
+            </MuiLink>
+          </Box>
 
           {/* Actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
