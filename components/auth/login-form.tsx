@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import NextLink from 'next/link';
-// import api from '@/lib/api';
-import { useAuthStore } from '@/store/useAuthStore';
 
 // MUI Components
 import {
@@ -22,44 +19,24 @@ import {
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 
+import { useLogin } from '@/hooks/use-auth';
+
 export function LoginForm() {
-  const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const { mutate, isPending, errorMsg } = useLogin();
+
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    // try {
-    //   const loginRes = await api.post('/users/login/', { email, password });
-    //   const { access, refresh } = loginRes.data;
-
-    //   // Get user profile info
-    //   const profileRes = await api.get('/users/user-profile/', {
-    //     headers: { Authorization: `Bearer ${access}` }
-    //   });
-
-    //   setAuth(profileRes.data, access, refresh);
-    //   router.push('/dashboard');
-    // } catch (err: any) {
-
-    //   setError(err.response?.data?.detail || 'Invalid email or password');
-    // } finally {
-    setIsLoading(false);
-    // }
+    mutate({ email, password });
   };
 
   return (
     <Box component="form" onSubmit={handleLogin} sx={{ width: '100%', mt: 1 }}>
-      {error && (
+      {errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
+          {errorMsg}
         </Alert>
       )}
 
@@ -113,7 +90,7 @@ export function LoginForm() {
         type="submit"
         fullWidth
         variant="contained"
-        disabled={isLoading}
+        disabled={isPending}
         sx={{
           mt: 4,
           mb: 3,
@@ -121,7 +98,7 @@ export function LoginForm() {
           fontSize: '1rem',
         }}
       >
-        {isLoading ? (
+        {isPending ? (
           <CircularProgress size={24} color="inherit" />
         ) : (
           'Sign in'
@@ -130,7 +107,7 @@ export function LoginForm() {
 
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant="body2" color="text.secondary">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <MuiLink
             component={NextLink}
             href="/register"
