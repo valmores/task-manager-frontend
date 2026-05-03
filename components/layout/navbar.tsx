@@ -196,8 +196,8 @@ export function Navbar() {
                   {user?.email || 'user@example.com'}
                 </Typography>
               </Box>
-              <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
+              {/* <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem onClick={handleMenuClose}>Settings</MenuItem> */}
               <Box sx={{ borderTop: `1px solid ${theme.palette.divider}`, mt: 1 }}>
                 <MenuItem onClick={handleLogout} sx={{ color: 'error.main', mt: 0.5 }}>
                   <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
