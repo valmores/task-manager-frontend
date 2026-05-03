@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Box, CircularProgress } from '@mui/material';
 import { Navbar } from '@/components/layout/navbar';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -12,13 +12,18 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isHydrated } = useAuthStore();
 
   useEffect(() => {
-    if (isHydrated && !user) {
-      router.replace('/login');
+    if (isHydrated) {
+      if (!user) {
+        router.replace('/login');
+      } else if (pathname.startsWith('/admin') && user.role !== 'admin') {
+        router.replace('/dashboard');
+      }
     }
-  }, [isHydrated, user, router]);
+  }, [isHydrated, user, router, pathname]);
 
   // While Zustand is rehydrating from localStorage, show a spinner
   // to avoid a flash-redirect for users who ARE authenticated.

@@ -44,3 +44,13 @@ export interface UserOption {
   last_name: string;
   role: string;
 }
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: 'admin' | 'project_owner' | 'user';
+  is_active: boolean;
+  date_joined: string;
+}

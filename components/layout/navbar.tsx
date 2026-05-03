@@ -134,6 +134,20 @@ export function Navbar() {
             >
               Tasks
             </MuiLink>
+            {user?.role === 'admin' && (
+              <MuiLink
+                component={NextLink}
+                href="/admin"
+                sx={{
+                  color: 'text.secondary',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  '&:hover': { color: 'primary.main' }
+                }}
+              >
+                Admin
+              </MuiLink>
+            )}
           </Box>
 
           {/* Actions */}
