@@ -12,12 +12,14 @@ import AddIcon from '@mui/icons-material/Add';
 import { useAuthStore } from '@/store/useAuthStore';
 import { TaskStatusCard } from './components/status-card';
 import { TaskFormModal } from './components/create-task-modal';
+import { useTasks } from '@/hooks/use-tasks';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const fullName = user ? `${user.first_name} ${user.last_name}` : 'User';
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { data: tasks } = useTasks();
 
   const handleCreateTask = () => {
     setIsModalOpen(true);
@@ -25,6 +27,10 @@ export default function DashboardPage() {
 
   const handleSubmitTask = () => {
     // Modal handles the mutation internally
+  };
+
+  const getCountByStatus = (status: string) => {
+    return tasks?.filter(task => task.status === status).length || 0;
   };
 
   return (
@@ -55,18 +61,24 @@ export default function DashboardPage() {
           <TaskStatusCard
             title="To Do"
             description="Tasks waiting to be started."
+            status="todo"
+            count={getCountByStatus('todo')}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <TaskStatusCard
             title="In Progress"
             description="Tasks you are currently working on."
+            status="in_progress"
+            count={getCountByStatus('in_progress')}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <TaskStatusCard
             title="Completed"
             description="Tasks you have finished."
+            status="done"
+            count={getCountByStatus('done')}
           />
         </Grid>
       </Grid>
