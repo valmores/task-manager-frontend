@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Container,
   Typography,
@@ -23,8 +24,10 @@ import { TaskCard } from './components/task-card';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import FolderIcon from '@mui/icons-material/Folder';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useTasks, useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
+import { useTasks } from '@/hooks/use-tasks';
+import { useProjects } from '@/hooks/use-projects';
 import { TaskFormModal } from '../dashboard/components/create-task-modal';
 import { Task } from '@/types/task';
 
@@ -59,13 +62,24 @@ const getPriorityColor = (priority: string) => {
 
 export default function TasksPage() {
   const theme = useTheme();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
+  
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [projectFilter, setProjectFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const { data: tasks, isLoading, isError } = useTasks();
+  const { data: projects } = useProjects();
+
+  useEffect(() => {
+    const projectId = searchParams.get('project');
+    if (projectId) {
+      setProjectFilter(projectId);
+    }
+  }, [searchParams]);
 
   const isAdminOrOwner = user?.role === 'admin' || user?.role === 'project_owner';
 
@@ -79,14 +93,11 @@ export default function TasksPage() {
     setIsModalOpen(true);
   };
 
-  const handleFormSubmit = () => {
-    // Modal handles the mutation internally
-  };
-
   const filteredTasks = tasks?.filter((task) => {
     const matchesSearch = task.title.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesProject = projectFilter === 'all' || task.project?.toString() === projectFilter;
+    return matchesSearch && matchesStatus && matchesProject;
   });
 
   return (
@@ -125,7 +136,7 @@ export default function TasksPage() {
           mb: 3,
           borderRadius: 3,
           display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
+          flexDirection: { xs: 'column', lg: 'row' },
           gap: 2,
           alignItems: 'center',
           boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
@@ -149,7 +160,7 @@ export default function TasksPage() {
           }}
         />
 
-        <Stack direction="row" spacing={2} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: { xs: '100%', lg: 'auto' } }}>
           <FormControl size="small" sx={{ minWidth: 150 }}>
             <InputLabel>Status</InputLabel>
             <Select
@@ -163,6 +174,28 @@ export default function TasksPage() {
               <MenuItem value="in_progress">In Progress</MenuItem>
               <MenuItem value="on_hold">On Hold</MenuItem>
               <MenuItem value="done">Done</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel>Project</InputLabel>
+            <Select
+              value={projectFilter}
+              label="Project"
+              onChange={(e) => setProjectFilter(e.target.value)}
+              sx={{ borderRadius: 2 }}
+              startAdornment={
+                <InputAdornment position="start">
+                  <FolderIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                </InputAdornment>
+              }
+            >
+              <MenuItem value="all">All Projects</MenuItem>
+              {projects?.map((project) => (
+                <MenuItem key={project.id} value={project.id.toString()}>
+                  {project.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -214,7 +247,6 @@ export default function TasksPage() {
       <TaskFormModal 
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleFormSubmit}
         task={editingTask}
       />
     </Container>

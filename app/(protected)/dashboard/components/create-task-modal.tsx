@@ -14,13 +14,15 @@ import {
   MenuItem,
   Stack,
   useTheme,
+  CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FlagIcon from '@mui/icons-material/Flag';
 import EventIcon from '@mui/icons-material/Event';
+import FolderIcon from '@mui/icons-material/Folder';
 import { Task } from '@/types/task';
 import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
-import { CircularProgress } from '@mui/material';
+import { useProjects } from '@/hooks/use-projects';
 
 interface TaskFormModalProps {
   open: boolean;
@@ -33,10 +35,12 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
   const theme = useTheme();
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
+  const { data: projects } = useProjects();
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    project: '',
     priority: 'medium',
     due_date: '',
     status: 'todo',
@@ -49,6 +53,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       setFormData({
         title: task.title,
         description: task.description || '',
+        project: task.project?.toString() || '',
         priority: task.priority,
         due_date: task.due_date || '',
         status: task.status,
@@ -57,6 +62,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       setFormData({
         title: '',
         description: '',
+        project: '',
         priority: 'medium',
         due_date: '',
         status: 'todo',
@@ -72,6 +78,11 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const submissionData = {
+      ...formData,
+      project: formData.project ? parseInt(formData.project) : null,
+    };
+
     const mutationOptions = {
       onSuccess: (data: any) => {
         if (onSubmit) onSubmit(data);
@@ -80,9 +91,9 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
     };
 
     if (task) {
-      updateTaskMutation.mutate({ id: task.id, data: formData }, mutationOptions);
+      updateTaskMutation.mutate({ id: task.id, data: submissionData }, mutationOptions);
     } else {
-      createTaskMutation.mutate(formData, mutationOptions);
+      createTaskMutation.mutate(submissionData, mutationOptions);
     }
   };
 
@@ -156,6 +167,32 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                 },
               }}
             />
+
+            <TextField
+              select
+              fullWidth
+              label="Project (Optional)"
+              name="project"
+              value={formData.project}
+              onChange={handleChange}
+              slotProps={{
+                input: {
+                  startAdornment: <FolderIcon sx={{ mr: 1, color: 'primary.main' }} />,
+                },
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                },
+              }}
+            >
+              <MenuItem value="">None</MenuItem>
+              {projects?.map((project) => (
+                <MenuItem key={project.id} value={project.id.toString()}>
+                  {project.name}
+                </MenuItem>
+              ))}
+            </TextField>
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField

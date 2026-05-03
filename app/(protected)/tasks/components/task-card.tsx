@@ -22,6 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FlagIcon from '@mui/icons-material/Flag';
 import EventIcon from '@mui/icons-material/Event';
+import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
 import { Task } from '@/types/task';
 import { useDeleteTask } from '@/hooks/use-tasks';
@@ -125,6 +126,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 <EventIcon fontSize="small" color="action" />
                 <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                   {task.due_date || 'No date'}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', minWidth: 120, display: { xs: 'none', lg: 'flex' } }}>
+                <FolderIcon fontSize="small" color="action" />
+                <Typography variant="caption" color="text.secondary" noWrap sx={{ maxWidth: 120 }}>
+                  {task.project_name || 'No Project'}
                 </Typography>
               </Stack>
 
