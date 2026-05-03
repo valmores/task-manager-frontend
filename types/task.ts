@@ -36,3 +36,11 @@ export interface CreateTaskData {
   due_date: string | null;
   status?: string;
 }
+
+export interface UserOption {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+}
