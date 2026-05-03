@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import NextLink from 'next/link';
-// import api from '@/lib/api';
 
 // MUI Components
 import {
@@ -21,58 +19,94 @@ import {
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+import { useRegister } from '@/hooks/use-auth';
 
 export function RegisterForm() {
-  const router = useRouter();
-
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState('');
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const { mutate, isPending, errorMsg, errorData } = useRegister();
+
+  const getFieldError = (field: string) => {
+    if (errorData && typeof errorData === 'object' && errorData[field]) {
+      const fieldError = errorData[field];
+      return Array.isArray(fieldError) ? fieldError.join(' ') : fieldError;
+    }
+    return null;
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    setLocalError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setLocalError('Passwords do not match');
       return;
     }
 
-    setIsLoading(true);
-    setError('');
-
-    // try {
-    //   await api.post('/users/register/', { name, email, password });
-    //   router.push('/login?registered=true');
-    // } catch (err: any) {
-    //   setError(err.response?.data?.detail || 'Registration failed. Please try again.');
-    // } finally {
-    setIsLoading(false);
-    // }
+    mutate({
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      password
+    });
   };
+
+  // Only show the top Alert for local errors or if there's no specific field error data
+  const showTopError = localError || (errorMsg && (!errorData || typeof errorData !== 'object' || errorData.detail));
 
   return (
     <Box component="form" onSubmit={handleRegister} sx={{ width: '100%', mt: 1 }}>
-      {error && (
+      {showTopError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
+          {localError || errorMsg}
         </Alert>
       )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          id="name"
-          label="Full Name"
-          name="name"
+          id="first-name"
+          label="First Name"
+          name="firstName"
           type="text"
-          autoComplete="name"
+          autoComplete="given-name"
           required
           fullWidth
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="John Doe"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          error={!!getFieldError('first_name')}
+          helperText={getFieldError('first_name')}
+          placeholder="John"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+
+        <TextField
+          id="last-name"
+          label="Last Name"
+          name="lastName"
+          type="text"
+          autoComplete="family-name"
+          required
+          fullWidth
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          error={!!getFieldError('last_name')}
+          helperText={getFieldError('last_name')}
+          placeholder="Doe"
           slotProps={{
             input: {
               startAdornment: (
@@ -94,6 +128,8 @@ export function RegisterForm() {
           fullWidth
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          error={!!getFieldError('email')}
+          helperText={getFieldError('email')}
           placeholder="you@example.com"
           slotProps={{
             input: {
@@ -105,7 +141,6 @@ export function RegisterForm() {
             },
           }}
         />
-
         <TextField
           id="password"
           label="Password"
@@ -116,6 +151,8 @@ export function RegisterForm() {
           fullWidth
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          error={!!getFieldError('password') || (password.length > 0 && password.length < 8)}
+          helperText={getFieldError('password')}
           placeholder="••••••••"
           slotProps={{
             input: {
@@ -124,9 +161,18 @@ export function RegisterForm() {
                   <LockIcon fontSize="small" color="action" />
                 </InputAdornment>
               ),
+              endAdornment: password.length >= 8 && (
+                <InputAdornment position="end">
+                  <CheckCircleIcon fontSize="small" color="success" />
+                </InputAdornment>
+              ),
             },
           }}
         />
+
+        <Typography variant="caption" color="text.secondary" sx={{ mt: -1, display: 'block' }}>
+          Password must be at least 8 characters long and not be a common password.
+        </Typography>
 
         <TextField
           id="confirm-password"
@@ -146,6 +192,11 @@ export function RegisterForm() {
                   <LockIcon fontSize="small" color="action" />
                 </InputAdornment>
               ),
+              endAdornment: (password === confirmPassword) && (
+                <InputAdornment position="end">
+                  <CheckCircleIcon fontSize="small" color="success" />
+                </InputAdornment>
+              ),
             },
           }}
         />
@@ -155,7 +206,7 @@ export function RegisterForm() {
         type="submit"
         fullWidth
         variant="contained"
-        disabled={isLoading}
+        disabled={isPending}
         sx={{
           mt: 4,
           mb: 3,
@@ -163,7 +214,7 @@ export function RegisterForm() {
           fontSize: '1rem',
         }}
       >
-        {isLoading ? (
+        {isPending ? (
           <CircularProgress size={24} color="inherit" />
         ) : (
           'Sign up'

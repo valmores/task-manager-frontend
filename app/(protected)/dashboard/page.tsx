@@ -24,8 +24,6 @@ export default function DashboardPage() {
   };
 
   const handleSubmitTask = (taskData: any) => {
-    console.log('New Task Data:', taskData);
-    // In a real app, this would call an API or update a store
     setIsModalOpen(false);
   };
 

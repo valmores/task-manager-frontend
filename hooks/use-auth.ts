@@ -32,8 +32,36 @@ export function useLogin() {
     ? (mutation.error as AxiosError<{ detail?: string }>).response?.data?.detail || 'Invalid email or password'
     : null;
 
+  const errorData = (mutation.error as AxiosError<Record<string, string[] | string>>)?.response?.data;
+
   return {
     ...mutation,
-    errorMsg
+    errorMsg,
+    errorData,
+  };
+}
+
+export function useRegister() {
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: async ({ first_name, last_name, email, password }: Record<string, string>) => {
+      await api.post('/users/register/', { first_name, last_name, email, password });
+    },
+    onSuccess: () => {
+      router.push('/login?registered=true');
+    },
+  });
+
+  const errorMsg = mutation.error 
+    ? (mutation.error as AxiosError<{ detail?: string }>).response?.data?.detail || 'Registration failed. Please try again.'
+    : null;
+
+  const errorData = (mutation.error as AxiosError<Record<string, string[] | string>>)?.response?.data;
+
+  return {
+    ...mutation,
+    errorMsg,
+    errorData,
   };
 }
