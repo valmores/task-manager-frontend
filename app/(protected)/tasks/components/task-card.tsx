@@ -146,8 +146,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               {/* Actions */}
               <Stack direction="row" spacing={0.5}>
                 {/* Admin gets full Edit; User gets Update Status; Owner gets nothing */}
-                {(userRole === 'admin' || userRole === 'user') && (
-                  <Tooltip title={userRole === 'admin' ? "Edit" : "Update Status"}>
+                {(userRole === 'admin' || userRole === 'user' || userRole === 'project_owner') && (
+                  <Tooltip title={
+                    userRole === 'admin' ? "Edit" :
+                      userRole === 'project_owner' ? "Reassign Task" : "Update Status"
+                  }>
                     <IconButton size="small" color="primary" onClick={() => onEdit(task)}>
                       <EditIcon fontSize="small" />
                     </IconButton>
@@ -162,10 +165,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     </IconButton>
                   </Tooltip>
                 )}
-                
-                <IconButton size="small">
-                  <MoreVertIcon fontSize="small" />
-                </IconButton>
+
               </Stack>
             </Stack>
           </Stack>

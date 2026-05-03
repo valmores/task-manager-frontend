@@ -48,10 +48,12 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
   const isOwner = user?.role === 'project_owner';
   const isRegularUser = user?.role === 'user';
 
-  // Strict RBAC: Project Owners can Create/Assign but NOT Edit
-  const canEditAllFields = isAdmin;
-  const canUpdateStatusOnly = isRegularUser;
   const isEditMode = !!task;
+
+  // Strict RBAC: Project Owners can Create/Assign but NOT Edit everything
+  const canEditAllFields = isAdmin || (isOwner && !isEditMode);
+  const canUpdateStatusOnly = isRegularUser;
+  const canUpdateAssignmentOnly = isOwner && isEditMode;
 
   const [formData, setFormData] = useState({
     title: '',
@@ -147,7 +149,10 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ m: 0, p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h5" component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
-            {isEditMode ? (canUpdateStatusOnly ? 'Update Task Status' : 'Edit Task') : 'Create New Task'}
+            {isEditMode 
+              ? (canUpdateStatusOnly ? 'Update Task Status' : canUpdateAssignmentOnly ? 'Reassign Task' : 'Edit Task') 
+              : 'Create New Task'
+            }
           </Typography>
           <IconButton onClick={onClose} sx={{ color: (theme) => theme.palette.grey[500] }}>
             <CloseIcon />
@@ -156,8 +161,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
 
         <DialogContent dividers sx={{ p: 3 }}>
           <Stack spacing={3}>
-            {/* --- READ ONLY VIEW FOR REGULAR USERS --- */}
-            {canUpdateStatusOnly && isEditMode && (
+            {/* --- READ ONLY VIEW FOR REGULAR USERS / OWNERS (partial) --- */}
+            {(canUpdateStatusOnly || canUpdateAssignmentOnly) && isEditMode && (
               <Box>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>{formData.title}</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>{formData.description || 'No description provided.'}</Typography>
@@ -172,65 +177,76 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                   <Grid size={{ xs: 6, md: 6 }}>
                     {renderReadOnlyField('Due Date', formData.due_date, EventIcon)}
                   </Grid>
+                  {canUpdateAssignmentOnly && (
+                    <Grid size={{ xs: 6, md: 6 }}>
+                      {renderReadOnlyField('Status', formData.status.toUpperCase(), FlagIcon)}
+                    </Grid>
+                  )}
                 </Grid>
               </Box>
             )}
 
-            {/* --- FULL EDIT VIEW FOR ADMINS / CREATE VIEW FOR OWNERS --- */}
-            {(!canUpdateStatusOnly || !isEditMode) && (
+            {/* --- FULL EDIT VIEW FOR ADMINS / CREATE VIEW FOR OWNERS / ASSIGNMENT FOR OWNERS --- */}
+            {((!canUpdateStatusOnly && !canUpdateAssignmentOnly) || !isEditMode || canUpdateAssignmentOnly) && (
               <>
-                <TextField
-                  required
-                  fullWidth
-                  disabled={!canEditAllFields && isEditMode}
-                  label="Task Title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  variant="outlined"
-                  autoFocus={!isEditMode}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                />
+                {!canUpdateAssignmentOnly && (
+                  <>
+                    <TextField
+                      required
+                      fullWidth
+                      disabled={!canEditAllFields && isEditMode}
+                      label="Task Title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      variant="outlined"
+                      autoFocus={!isEditMode}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    />
 
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  disabled={!canEditAllFields && isEditMode}
-                  label="Description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  variant="outlined"
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                />
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      disabled={!canEditAllFields && isEditMode}
+                      label="Description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      variant="outlined"
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    />
+                  </>
+                )}
 
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                  <TextField
-                    select
-                    fullWidth
-                    disabled={!canEditAllFields && isEditMode}
-                    label="Project (Optional)"
-                    name="project"
-                    value={formData.project}
-                    onChange={handleChange}
-                    slotProps={{ input: { startAdornment: <FolderIcon sx={{ mr: 1, color: 'primary.main' }} /> } }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    {projects?.map((p) => <MenuItem key={p.id} value={p.id.toString()}>{p.name}</MenuItem>)}
-                  </TextField>
+                  {!canUpdateAssignmentOnly && (
+                    <TextField
+                      select
+                      fullWidth
+                      disabled={!canEditAllFields && isEditMode}
+                      label="Project (Optional)"
+                      name="project"
+                      value={formData.project}
+                      onChange={handleChange}
+                      slotProps={{ input: { startAdornment: <FolderIcon sx={{ mr: 1, color: 'primary.main' }} /> } }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      {projects?.map((p) => <MenuItem key={p.id} value={p.id.toString()}>{p.name}</MenuItem>)}
+                    </TextField>
+                  )}
 
                   <TextField
                     select
                     fullWidth
-                    disabled={!canEditAllFields && isEditMode}
+                    disabled={!canEditAllFields && isEditMode && !canUpdateAssignmentOnly}
                     label="Assign To"
                     name="assigned_to"
                     value={formData.assigned_to}
                     onChange={handleChange}
                     slotProps={{ input: { startAdornment: <PersonIcon sx={{ mr: 1, color: 'primary.main' }} /> } }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: canUpdateAssignmentOnly ? 'primary.50' : 'transparent' } }}
                   >
                     <MenuItem value="">Unassigned</MenuItem>
                     {users?.map((u) => (
@@ -241,39 +257,41 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                   </TextField>
                 </Stack>
 
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                  <TextField
-                    select
-                    fullWidth
-                    disabled={!canEditAllFields && isEditMode}
-                    label="Priority"
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleChange}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                  >
-                    <MenuItem value="low">Low</MenuItem>
-                    <MenuItem value="medium">Medium</MenuItem>
-                    <MenuItem value="high">High</MenuItem>
-                  </TextField>
+                {!canUpdateAssignmentOnly && (
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                    <TextField
+                      select
+                      fullWidth
+                      disabled={!canEditAllFields && isEditMode}
+                      label="Priority"
+                      name="priority"
+                      value={formData.priority}
+                      onChange={handleChange}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    >
+                      <MenuItem value="low">Low</MenuItem>
+                      <MenuItem value="medium">Medium</MenuItem>
+                      <MenuItem value="high">High</MenuItem>
+                    </TextField>
 
-                  <TextField
-                    fullWidth
-                    disabled={!canEditAllFields && isEditMode}
-                    label="Due Date"
-                    name="due_date"
-                    type="date"
-                    value={formData.due_date}
-                    onChange={handleChange}
-                    slotProps={{ inputLabel: { shrink: true } }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                  />
-                </Stack>
+                    <TextField
+                      fullWidth
+                      disabled={!canEditAllFields && isEditMode}
+                      label="Due Date"
+                      name="due_date"
+                      type="date"
+                      value={formData.due_date}
+                      onChange={handleChange}
+                      slotProps={{ inputLabel: { shrink: true } }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    />
+                  </Stack>
+                )}
               </>
             )}
 
-            {/* --- STATUS FIELD (ALWAYS EDITABLE IN EDIT MODE) --- */}
-            {isEditMode && (
+            {/* --- STATUS FIELD (ALWAYS EDITABLE IN EDIT MODE FOR ADMIN/USER, NOT OWNER) --- */}
+            {isEditMode && !canUpdateAssignmentOnly && (
               <TextField
                 select
                 fullWidth

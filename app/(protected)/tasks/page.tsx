@@ -64,7 +64,7 @@ export default function TasksPage() {
   const theme = useTheme();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
-  
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [projectFilter, setProjectFilter] = useState('all');
@@ -198,14 +198,6 @@ export default function TasksPage() {
               ))}
             </Select>
           </FormControl>
-
-          <Button
-            variant="outlined"
-            startIcon={<FilterListIcon />}
-            sx={{ borderRadius: 2, whiteSpace: 'nowrap' }}
-          >
-            More Filters
-          </Button>
         </Stack>
       </Paper>
 
@@ -220,7 +212,7 @@ export default function TasksPage() {
         <Grid container spacing={2}>
           {filteredTasks.map((task) => (
             <Grid key={task.id} size={{ xs: 12 }}>
-              <TaskCard 
+              <TaskCard
                 task={task}
                 userRole={user?.role}
                 onEdit={handleEditClick}
@@ -244,7 +236,7 @@ export default function TasksPage() {
         {/* We can add MUI Pagination here later */}
       </Box>
 
-      <TaskFormModal 
+      <TaskFormModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         task={editingTask}
