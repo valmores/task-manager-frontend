@@ -41,13 +41,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { AdminUser } from '@/types/task';
 import { AdminUserModal } from './components/admin-user-modal';
 
-// Stub data for UI demonstration (will be replaced by real hooks in the next commit)
-const STUB_USERS: AdminUser[] = [
-  { id: 1, email: 'admin@example.com', first_name: 'System', last_name: 'Admin', role: 'admin', is_active: true, date_joined: '2026-01-01' },
-  { id: 2, email: 'owner@example.com', first_name: 'Project', last_name: 'Owner', role: 'project_owner', is_active: true, date_joined: '2026-02-15' },
-  { id: 3, email: 'user@example.com', first_name: 'Regular', last_name: 'User', role: 'user', is_active: true, date_joined: '2026-03-10' },
-  { id: 4, email: 'inactive@example.com', first_name: 'Disabled', last_name: 'Account', role: 'user', is_active: false, date_joined: '2026-04-20' },
-];
+import { useAdminUsers, useUpdateAdminUser, useDeactivateUser } from '@/hooks/use-admin-users';
 
 const getRoleColor = (role: string) => {
   switch (role) {
@@ -69,37 +63,69 @@ const getRoleLabel = (role: string) => {
 
 export default function AdminPanelPage() {
   const { user: currentUser } = useAuthStore();
-  
+  const { data: users, isLoading, isError } = useAdminUsers();
+  const updateMutation = useUpdateAdminUser();
+  const deactivateMutation = useDeactivateUser();
+
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
-  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
-  const [userToDeactivate, setUserToDeactivate] = useState<AdminUser | null>(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [userToUpdate, setUserToUpdate] = useState<AdminUser | null>(null);
 
   const filteredUsers = useMemo(() => {
-    return STUB_USERS.filter((u) => {
+    return users?.filter((u) => {
       const name = `${u.first_name} ${u.last_name}`.toLowerCase();
       const matchesSearch = name.includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
       const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-      return matchesSearch && matchesRole;
+      const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? u.is_active : !u.is_active);
+      return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [search, roleFilter]);
+  }, [users, search, roleFilter, statusFilter]);
 
   const handleEditClick = (user: AdminUser) => {
     setEditingUser(user);
     setIsModalOpen(true);
   };
 
-  const handleDeactivateClick = (user: AdminUser) => {
-    setUserToDeactivate(user);
-    setDeactivateDialogOpen(true);
+  const handleStatusClick = (user: AdminUser) => {
+    setUserToUpdate(user);
+    setConfirmDialogOpen(true);
   };
 
-  const handleDeactivateConfirm = () => {
-    // UI Only: Just close the dialog
-    setDeactivateDialogOpen(false);
+  const handleStatusConfirm = () => {
+    if (userToUpdate) {
+      if (userToUpdate.is_active) {
+        // Deactivate
+        deactivateMutation.mutate(userToUpdate.id, {
+          onSuccess: () => setConfirmDialogOpen(false),
+        });
+      } else {
+        // Activate
+        updateMutation.mutate({ id: userToUpdate.id, data: { is_active: true } }, {
+          onSuccess: () => setConfirmDialogOpen(false),
+        });
+      }
+    }
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Container sx={{ py: 4 }}>
+        <Alert severity="error">Error loading users. Please try again later.</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -157,6 +183,19 @@ export default function AdminPanelPage() {
               <MenuItem value="admin">Admins</MenuItem>
               <MenuItem value="project_owner">Project Owners</MenuItem>
               <MenuItem value="user">Users</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={statusFilter}
+              label="Status"
+              onChange={(e) => setStatusFilter(e.target.value)}
+              sx={{ borderRadius: 2 }}
+            >
+              <MenuItem value="all">All Status</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
             </Select>
           </FormControl>
         </Stack>
@@ -230,15 +269,15 @@ export default function AdminPanelPage() {
                           </IconButton>
                         </span>
                       </Tooltip>
-                      <Tooltip title={u.is_active ? (isSelf ? "Cannot deactivate yourself" : "Deactivate") : "Already Inactive"}>
+                      <Tooltip title={u.is_active ? (isSelf ? "Cannot deactivate yourself" : "Deactivate") : "Reactivate"}>
                         <span>
                           <IconButton
                             size="small"
-                            color="error"
-                            onClick={() => handleDeactivateClick(u)}
-                            disabled={!u.is_active || isSelf}
+                            color={u.is_active ? "error" : "success"}
+                            onClick={() => handleStatusClick(u)}
+                            disabled={isSelf}
                           >
-                            <BlockIcon fontSize="small" />
+                            {u.is_active ? <BlockIcon fontSize="small" /> : <CheckCircleIcon fontSize="small" />}
                           </IconButton>
                         </span>
                       </Tooltip>
@@ -258,23 +297,29 @@ export default function AdminPanelPage() {
         user={editingUser}
       />
 
-      {/* Deactivate Confirmation */}
-      <Dialog open={deactivateDialogOpen} onClose={() => setDeactivateDialogOpen(false)}>
-        <DialogTitle>Deactivate User?</DialogTitle>
+      {/* Status Change Confirmation */}
+      <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)}>
+        <DialogTitle component="div">
+          {userToUpdate?.is_active ? 'Deactivate User?' : 'Reactivate User?'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to deactivate <strong>{userToDeactivate?.first_name} {userToDeactivate?.last_name}</strong>?
-            They will no longer be able to log in, but their data will be preserved.
+            {userToUpdate?.is_active ? (
+              <>Are you sure you want to deactivate <strong>{userToUpdate?.first_name} {userToUpdate?.last_name}</strong>? They will no longer be able to log in.</>
+            ) : (
+              <>Are you sure you want to reactivate <strong>{userToUpdate?.first_name} {userToUpdate?.last_name}</strong>? They will regain access to the system.</>
+            )}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setDeactivateDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
           <Button
-            onClick={handleDeactivateConfirm}
-            color="error"
+            onClick={handleStatusConfirm}
+            color={userToUpdate?.is_active ? 'error' : 'success'}
             variant="contained"
+            disabled={deactivateMutation.isPending || updateMutation.isPending}
           >
-            Deactivate
+            {deactivateMutation.isPending || updateMutation.isPending ? 'Processing...' : (userToUpdate?.is_active ? 'Deactivate' : 'Reactivate')}
           </Button>
         </DialogActions>
       </Dialog>

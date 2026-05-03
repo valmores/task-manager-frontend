@@ -14,7 +14,12 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import LockIcon from '@mui/icons-material/Lock';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { AdminUser } from '@/types/task';
+import { useAdminCreateUser, useUpdateAdminUser } from '@/hooks/use-admin-users';
+import { Alert } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
 
 interface AdminUserModalProps {
   open: boolean;
@@ -24,6 +29,9 @@ interface AdminUserModalProps {
 
 export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, user }) => {
   const isEdit = !!user;
+  const createMutation = useAdminCreateUser();
+  const updateMutation = useUpdateAdminUser();
+  const [error, setError] = React.useState<string | null>(null);
 
   const [formData, setFormData] = React.useState({
     email: '',
@@ -31,16 +39,19 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
     last_name: '',
     role: 'user',
     password: '',
+    is_active: true,
   });
 
   useEffect(() => {
+    setError(null);
     if (user) {
       setFormData({
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
         role: user.role,
-        password: '', // Password not needed for edit
+        password: '',
+        is_active: user.is_active,
       });
     } else {
       setFormData({
@@ -49,19 +60,46 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
         last_name: '',
         role: 'user',
         password: '',
+        is_active: true,
       });
     }
   }, [user, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // UI Only: Just close the modal
-    onClose();
+    setError(null);
+
+    // Frontend validation
+    if (!isEdit && formData.password.length < 8) {
+      return;
+    }
+
+    if (isEdit && user) {
+      updateMutation.mutate({ id: user.id, data: formData }, {
+        onSuccess: () => onClose(),
+        onError: (err: any) => {
+          const detail = err.response?.data?.detail || "Failed to update user.";
+          setError(detail);
+        }
+      });
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: () => onClose(),
+        onError: (err: any) => {
+          const data = err.response?.data;
+          // Flatten errors if they come in object form (e.g. {email: ["..."]})
+          const detail = typeof data === 'object' 
+            ? Object.values(data).flat().join(' ') 
+            : "Failed to create user.";
+          setError(detail);
+        }
+      });
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>
+      <DialogTitle component="div">
         <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
             {isEdit ? 'Edit User' : 'Create New User'}
@@ -74,6 +112,8 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
       <form onSubmit={handleSubmit}>
         <DialogContent sx={{ pt: 1 }}>
           <Stack spacing={2.5}>
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            
             <TextField
               label="Email Address"
               type="email"
@@ -84,14 +124,36 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
             {!isEdit && (
-              <TextField
-                label="Password"
-                type="password"
-                fullWidth
-                required
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
+              <>
+                <TextField
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  error={formData.password.length > 0 && formData.password.length < 8}
+                  helperText={formData.password.length > 0 && formData.password.length < 8 ? "Password must be at least 8 characters" : ""}
+                  placeholder="••••••••"
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon fontSize="small" color="action" />
+                        </InputAdornment>
+                      ),
+                      endAdornment: formData.password.length >= 8 && (
+                        <InputAdornment position="end">
+                          <CheckCircleIcon fontSize="small" color="success" />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+                <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5, display: 'block' }}>
+                  Password must be at least 8 characters long.
+                </Typography>
+              </>
             )}
             <Stack direction="row" spacing={2}>
               <TextField
@@ -121,6 +183,20 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
               <MenuItem value="project_owner">Project Owner (Management)</MenuItem>
               <MenuItem value="admin">Admin (System Access)</MenuItem>
             </TextField>
+
+            {isEdit && (
+              <TextField
+                select
+                label="Account Status"
+                fullWidth
+                required
+                value={formData.is_active ? 'active' : 'inactive'}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.value === 'active' })}
+              >
+                <MenuItem value="active">Active</MenuItem>
+                <MenuItem value="inactive">Inactive</MenuItem>
+              </TextField>
+            )}
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 1 }}>
@@ -128,8 +204,9 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
           <Button
             type="submit"
             variant="contained"
+            disabled={createMutation.isPending || updateMutation.isPending}
           >
-            {isEdit ? 'Update User' : 'Create User'}
+            {isEdit ? (updateMutation.isPending ? 'Updating...' : 'Update User') : (createMutation.isPending ? 'Creating...' : 'Create User')}
           </Button>
         </DialogActions>
       </form>
