@@ -28,7 +28,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTasks } from '@/hooks/use-tasks';
 import { useProjects } from '@/hooks/use-projects';
-import { TaskFormModal } from '../dashboard/components/create-task-modal';
+import { TaskFormModal } from './components/task-form-modal';
 import { Task } from '@/types/task';
 
 const getStatusColor = (status: string) => {

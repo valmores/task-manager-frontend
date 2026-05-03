@@ -65,6 +65,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
     status: 'todo',
   });
 
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+
   const isLoading = createTaskMutation.isPending || updateTaskMutation.isPending;
 
   useEffect(() => {
@@ -88,12 +90,21 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
         due_date: '',
         status: 'todo',
       });
+      setErrors({});
     }
   }, [task, open]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,6 +120,11 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       onSuccess: (data: any) => {
         if (onSubmit) onSubmit(data);
         onClose();
+      },
+      onError: (error: any) => {
+        if (error.response?.data) {
+          setErrors(error.response.data);
+        }
       }
     };
 
@@ -199,6 +215,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                       name="title"
                       value={formData.title}
                       onChange={handleChange}
+                      error={!!errors.title}
+                      helperText={errors.title?.[0]}
                       variant="outlined"
                       autoFocus={!isEditMode}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
@@ -213,6 +231,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
+                      error={!!errors.description}
+                      helperText={errors.description?.[0]}
                       variant="outlined"
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     />
@@ -229,6 +249,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                       name="project"
                       value={formData.project}
                       onChange={handleChange}
+                      error={!!errors.project}
+                      helperText={errors.project?.[0]}
                       slotProps={{ input: { startAdornment: <FolderIcon sx={{ mr: 1, color: 'primary.main' }} /> } }}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     >
@@ -245,6 +267,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                     name="assigned_to"
                     value={formData.assigned_to}
                     onChange={handleChange}
+                    error={!!errors.assigned_to}
+                    helperText={errors.assigned_to?.[0]}
                     slotProps={{ input: { startAdornment: <PersonIcon sx={{ mr: 1, color: 'primary.main' }} /> } }}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: canUpdateAssignmentOnly ? 'primary.50' : 'transparent' } }}
                   >
@@ -282,6 +306,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                       type="date"
                       value={formData.due_date}
                       onChange={handleChange}
+                      error={!!errors.due_date}
+                      helperText={errors.due_date?.[0]}
                       slotProps={{ inputLabel: { shrink: true } }}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     />
@@ -325,4 +351,3 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
     </Dialog>
   );
 };
-
