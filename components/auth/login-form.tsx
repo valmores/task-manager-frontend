@@ -13,17 +13,21 @@ import {
   Alert,
   CircularProgress,
   InputAdornment,
+  IconButton,
 } from '@mui/material';
 
 // MUI Icons
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import { useLogin } from '@/hooks/use-auth';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const { mutate, isPending, errorMsg } = useLogin();
 
@@ -67,7 +71,7 @@ export function LoginForm() {
           id="password"
           label="Password"
           name="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           autoComplete="current-password"
           required
           fullWidth
@@ -79,6 +83,19 @@ export function LoginForm() {
               startAdornment: (
                 <InputAdornment position="start">
                   <LockIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    onMouseDown={(e) => e.preventDefault()}
+                    edge="end"
+                    size="small"
+                  >
+                    {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                  </IconButton>
                 </InputAdornment>
               ),
             },

@@ -13,6 +13,8 @@ import {
   Alert,
   CircularProgress,
   InputAdornment,
+  IconButton,
+  Stack,
 } from '@mui/material';
 
 // MUI Icons
@@ -20,6 +22,8 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import { useRegister } from '@/hooks/use-auth';
 
@@ -30,6 +34,8 @@ export function RegisterForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { mutate, isPending, errorMsg, errorData } = useRegister();
 
@@ -145,7 +151,7 @@ export function RegisterForm() {
           id="password"
           label="Password"
           name="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           autoComplete="new-password"
           required
           fullWidth
@@ -161,9 +167,22 @@ export function RegisterForm() {
                   <LockIcon fontSize="small" color="action" />
                 </InputAdornment>
               ),
-              endAdornment: password.length >= 8 && (
+              endAdornment: (
                 <InputAdornment position="end">
-                  <CheckCircleIcon fontSize="small" color="success" />
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                    {password.length >= 8 && (
+                      <CheckCircleIcon fontSize="small" color="success" />
+                    )}
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      size="small"
+                    >
+                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                    </IconButton>
+                  </Stack>
                 </InputAdornment>
               ),
             },
@@ -178,7 +197,7 @@ export function RegisterForm() {
           id="confirm-password"
           label="Confirm Password"
           name="confirmPassword"
-          type="password"
+          type={showConfirmPassword ? 'text' : 'password'}
           autoComplete="new-password"
           required
           fullWidth
@@ -192,9 +211,22 @@ export function RegisterForm() {
                   <LockIcon fontSize="small" color="action" />
                 </InputAdornment>
               ),
-              endAdornment: (password === confirmPassword) && (
+              endAdornment: (
                 <InputAdornment position="end">
-                  <CheckCircleIcon fontSize="small" color="success" />
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                    {(password.length > 0 && password === confirmPassword) && (
+                      <CheckCircleIcon fontSize="small" color="success" />
+                    )}
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      size="small"
+                    >
+                      {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                    </IconButton>
+                  </Stack>
                 </InputAdornment>
               ),
             },

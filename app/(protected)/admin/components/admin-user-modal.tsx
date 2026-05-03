@@ -16,6 +16,8 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { AdminUser } from '@/types/task';
 import { useAdminCreateUser, useUpdateAdminUser } from '@/hooks/use-admin-users';
 import { Alert } from '@mui/material';
@@ -32,6 +34,7 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
   const createMutation = useAdminCreateUser();
   const updateMutation = useUpdateAdminUser();
   const [error, setError] = React.useState<string | null>(null);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const [formData, setFormData] = React.useState({
     email: '',
@@ -88,8 +91,8 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
         onError: (err: any) => {
           const data = err.response?.data;
           // Flatten errors if they come in object form (e.g. {email: ["..."]})
-          const detail = typeof data === 'object' 
-            ? Object.values(data).flat().join(' ') 
+          const detail = typeof data === 'object'
+            ? Object.values(data).flat().join(' ')
             : "Failed to create user.";
           setError(detail);
         }
@@ -113,7 +116,7 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
         <DialogContent sx={{ pt: 1 }}>
           <Stack spacing={2.5}>
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-            
+
             <TextField
               label="Email Address"
               type="email"
@@ -127,7 +130,7 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
               <>
                 <TextField
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   fullWidth
                   required
                   value={formData.password}
@@ -142,9 +145,22 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
                           <LockIcon fontSize="small" color="action" />
                         </InputAdornment>
                       ),
-                      endAdornment: formData.password.length >= 8 && (
+                      endAdornment: (
                         <InputAdornment position="end">
-                          <CheckCircleIcon fontSize="small" color="success" />
+                          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                            {formData.password.length >= 8 && (
+                              <CheckCircleIcon fontSize="small" color="success" />
+                            )}
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword(!showPassword)}
+                              onMouseDown={(e) => e.preventDefault()}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                            </IconButton>
+                          </Stack>
                         </InputAdornment>
                       ),
                     },
@@ -210,6 +226,6 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
           </Button>
         </DialogActions>
       </form>
-    </Dialog>
+    </Dialog >
   );
 };
