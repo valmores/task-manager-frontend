@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -18,21 +18,51 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import FlagIcon from '@mui/icons-material/Flag';
 import EventIcon from '@mui/icons-material/Event';
+import { Task } from '@/types/task';
+import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
+import { CircularProgress } from '@mui/material';
 
-interface CreateTaskModalProps {
+interface TaskFormModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (taskData: any) => void;
+  onSubmit?: (taskData: any) => void;
+  task?: Task | null;
 }
 
-export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ open, onClose, onSubmit }) => {
+export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onSubmit, task }) => {
   const theme = useTheme();
+  const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     priority: 'medium',
     due_date: '',
+    status: 'todo',
   });
+
+  const isLoading = createTaskMutation.isPending || updateTaskMutation.isPending;
+
+  useEffect(() => {
+    if (task) {
+      setFormData({
+        title: task.title,
+        description: task.description || '',
+        priority: task.priority,
+        due_date: task.due_date || '',
+        status: task.status,
+      });
+    } else {
+      setFormData({
+        title: '',
+        description: '',
+        priority: 'medium',
+        due_date: '',
+        status: 'todo',
+      });
+    }
+  }, [task, open]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -41,15 +71,19 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ open, onClose,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    onClose();
-    // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      priority: 'medium',
-      due_date: '',
-    });
+
+    const mutationOptions = {
+      onSuccess: (data: any) => {
+        if (onSubmit) onSubmit(data);
+        onClose();
+      }
+    };
+
+    if (task) {
+      updateTaskMutation.mutate({ id: task.id, data: formData }, mutationOptions);
+    } else {
+      createTaskMutation.mutate(formData, mutationOptions);
+    }
   };
 
   return (
@@ -70,8 +104,8 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ open, onClose,
     >
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ m: 0, p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-            Create New Task
+          <Typography variant="h5" component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            {task ? 'Edit Task' : 'Create New Task'}
           </Typography>
           <IconButton
             aria-label="close"
@@ -167,6 +201,27 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ open, onClose,
                 }}
               />
             </Stack>
+
+            {task && (
+              <TextField
+                select
+                fullWidth
+                label="Status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
+              >
+                <MenuItem value="todo">To Do</MenuItem>
+                <MenuItem value="in_progress">In Progress</MenuItem>
+                <MenuItem value="on_hold">On Hold</MenuItem>
+                <MenuItem value="done">Done</MenuItem>
+              </TextField>
+            )}
           </Stack>
         </DialogContent>
 
@@ -184,7 +239,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ open, onClose,
           <Button
             type="submit"
             variant="contained"
-            disabled={!formData.title}
+            disabled={!formData.title || isLoading}
             sx={{
               px: 4,
               py: 1,
@@ -194,12 +249,18 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ open, onClose,
               '&:hover': {
                 boxShadow: '0 6px 20px rgba(0,118,255,0.23)',
               },
+              minWidth: 140
             }}
           >
-            Create Task
+            {isLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              task ? 'Update Task' : 'Create Task'
+            )}
           </Button>
         </DialogActions>
       </Box>
     </Dialog>
   );
 };
+

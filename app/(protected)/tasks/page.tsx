@@ -16,48 +16,17 @@ import {
   FormControl,
   InputLabel,
   useTheme,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import { TaskCard } from './components/task-card';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useAuthStore } from '@/store/useAuthStore';
-
-// Sample data for the layout
-const SAMPLE_TASKS = [
-  {
-    id: 1,
-    title: 'Design Dashboard Wireframes',
-    status: 'in_progress',
-    priority: 'high',
-    due_date: '2024-05-15',
-    assigned_to_email: 'john.doe@example.com',
-  },
-  {
-    id: 2,
-    title: 'Implement Authentication API',
-    status: 'todo',
-    priority: 'medium',
-    due_date: '2024-05-20',
-    assigned_to_email: 'jane.smith@example.com',
-  },
-  {
-    id: 3,
-    title: 'Fix Navigation Bug',
-    status: 'done',
-    priority: 'low',
-    due_date: '2024-05-10',
-    assigned_to_email: 'john.doe@example.com',
-  },
-  {
-    id: 4,
-    title: 'Database Migration',
-    status: 'on_hold',
-    priority: 'high',
-    due_date: '2024-05-25',
-    assigned_to_email: 'admin@example.com',
-  },
-];
+import { useTasks, useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
+import { TaskFormModal } from '../dashboard/components/create-task-modal';
+import { Task } from '@/types/task';
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -93,8 +62,32 @@ export default function TasksPage() {
   const { user } = useAuthStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  const { data: tasks, isLoading, isError } = useTasks();
 
   const isAdminOrOwner = user?.role === 'admin' || user?.role === 'project_owner';
+
+  const handleCreateClick = () => {
+    setEditingTask(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (task: Task) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleFormSubmit = () => {
+    // Modal handles the mutation internally
+  };
+
+  const filteredTasks = tasks?.filter((task) => {
+    const matchesSearch = task.title.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -112,6 +105,7 @@ export default function TasksPage() {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
+            onClick={handleCreateClick}
             sx={{
               px: 3,
               py: 1,
@@ -183,24 +177,47 @@ export default function TasksPage() {
       </Paper>
 
       {/* Tasks Grid */}
-      <Grid container spacing={2}>
-        {SAMPLE_TASKS.map((task) => (
-          <Grid key={task.id} size={{ xs: 12 }}>
-            <TaskCard 
-              task={task}
-              isAdminOrOwner={isAdminOrOwner}
-              getStatusLabel={getStatusLabel}
-              getStatusColor={getStatusColor}
-              getPriorityColor={getPriorityColor}
-            />
-          </Grid>
-        ))}
-      </Grid>
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : isError ? (
+        <Alert severity="error">Error loading tasks. Please try again later.</Alert>
+      ) : filteredTasks && filteredTasks.length > 0 ? (
+        <Grid container spacing={2}>
+          {filteredTasks.map((task) => (
+            <Grid key={task.id} size={{ xs: 12 }}>
+              <TaskCard 
+                task={task}
+                isAdminOrOwner={isAdminOrOwner}
+                onEdit={handleEditClick}
+                getStatusLabel={getStatusLabel}
+                getStatusColor={getStatusColor}
+                getPriorityColor={getPriorityColor}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            No tasks found.
+          </Typography>
+        </Box>
+      )}
 
       {/* Pagination Placeholder */}
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
         {/* We can add MUI Pagination here later */}
       </Box>
+
+      <TaskFormModal 
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+        task={editingTask}
+      />
     </Container>
   );
 }
+

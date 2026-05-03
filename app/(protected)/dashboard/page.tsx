@@ -11,7 +11,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { useAuthStore } from '@/store/useAuthStore';
 import { TaskStatusCard } from './components/status-card';
-import { CreateTaskModal } from './components/create-task-modal';
+import { TaskFormModal } from './components/create-task-modal';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -23,8 +23,8 @@ export default function DashboardPage() {
     setIsModalOpen(true);
   };
 
-  const handleSubmitTask = (taskData: any) => {
-    setIsModalOpen(false);
+  const handleSubmitTask = () => {
+    // Modal handles the mutation internally
   };
 
   return (
@@ -69,7 +69,7 @@ export default function DashboardPage() {
         </Grid>
       </Grid>
 
-      <CreateTaskModal
+      <TaskFormModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitTask}
