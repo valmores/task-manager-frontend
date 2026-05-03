@@ -58,7 +58,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({ open, onClos
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const options = {
       onSuccess: () => {
         onClose();
@@ -89,7 +89,11 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({ open, onClos
     >
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ m: 0, p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+          <Typography
+            variant="h5"
+            component="span"
+            sx={{ fontWeight: 700, color: 'primary.main' }}
+          >
             {project ? 'Edit Project' : 'Create New Project'}
           </Typography>
           <IconButton onClick={onClose} sx={{ color: 'grey.500' }}>
