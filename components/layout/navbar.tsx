@@ -20,11 +20,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function Navbar() {
   const router = useRouter();
   const theme = useTheme();
   const { user, logout } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -38,6 +40,7 @@ export function Navbar() {
 
   const handleLogout = () => {
     handleMenuClose();
+    queryClient.clear();
     logout();
     router.replace('/login');
   };
