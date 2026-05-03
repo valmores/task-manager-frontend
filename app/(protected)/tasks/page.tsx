@@ -222,7 +222,7 @@ export default function TasksPage() {
             <Grid key={task.id} size={{ xs: 12 }}>
               <TaskCard 
                 task={task}
-                isAdminOrOwner={isAdminOrOwner}
+                userRole={user?.role}
                 onEdit={handleEditClick}
                 getStatusLabel={getStatusLabel}
                 getStatusColor={getStatusColor}

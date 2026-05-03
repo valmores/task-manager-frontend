@@ -29,7 +29,7 @@ import { useDeleteTask } from '@/hooks/use-tasks';
 
 interface TaskCardProps {
   task: Task;
-  isAdminOrOwner: boolean;
+  userRole?: string;
   onEdit: (task: Task) => void;
   getStatusLabel: (status: string) => string;
   getStatusColor: (status: string) => string;
@@ -38,7 +38,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
-  isAdminOrOwner,
+  userRole,
   onEdit,
   getStatusLabel,
   getStatusColor,
@@ -145,18 +145,24 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
               {/* Actions */}
               <Stack direction="row" spacing={0.5}>
-                <Tooltip title="Edit">
-                  <IconButton size="small" color="primary" onClick={() => onEdit(task)}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                {isAdminOrOwner && (
+                {/* Admin gets full Edit; User gets Update Status; Owner gets nothing */}
+                {(userRole === 'admin' || userRole === 'user') && (
+                  <Tooltip title={userRole === 'admin' ? "Edit" : "Update Status"}>
+                    <IconButton size="small" color="primary" onClick={() => onEdit(task)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {/* Only Admin can Delete (Strict RBAC) */}
+                {userRole === 'admin' && (
                   <Tooltip title="Delete">
                     <IconButton size="small" color="error" onClick={handleDeleteClick}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 )}
+                
                 <IconButton size="small">
                   <MoreVertIcon fontSize="small" />
                 </IconButton>

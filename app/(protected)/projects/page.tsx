@@ -184,7 +184,7 @@ export default function ProjectsPage() {
                     View Tasks
                   </Button>
 
-                  {(isAdminOrOwner && (user?.email === project.created_by || user?.role === 'admin')) && (
+                  {user?.role === 'admin' && (
                     <Box>
                       <Tooltip title="Edit">
                         <IconButton size="small" color="primary" onClick={() => handleEditClick(project)}>

@@ -38,14 +38,16 @@ export default function DashboardPage() {
             Here is an overview of your tasks for today.
           </Typography>
         </Box>
-        <Button
-          onClick={handleCreateTask}
-          variant="contained"
-          startIcon={<AddIcon />}
-          sx={{ px: 3, py: 1 }}
-        >
-          Create Task
-        </Button>
+        {(user?.role === 'admin' || user?.role === 'project_owner') && (
+          <Button
+            onClick={handleCreateTask}
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{ px: 3, py: 1 }}
+          >
+            Create Task
+          </Button>
+        )}
       </Box>
 
       <Grid container spacing={3}>
