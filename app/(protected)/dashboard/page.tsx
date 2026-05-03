@@ -57,7 +57,7 @@ export default function DashboardPage() {
       </Box>
 
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <TaskStatusCard
             title="To Do"
             description="Tasks waiting to be started."
@@ -65,7 +65,7 @@ export default function DashboardPage() {
             count={getCountByStatus('todo')}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <TaskStatusCard
             title="In Progress"
             description="Tasks you are currently working on."
@@ -73,7 +73,15 @@ export default function DashboardPage() {
             count={getCountByStatus('in_progress')}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <TaskStatusCard
+            title="On Hold"
+            description="Tasks that are temporarily paused."
+            status="on_hold"
+            count={getCountByStatus('on_hold')}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <TaskStatusCard
             title="Completed"
             description="Tasks you have finished."
