@@ -1,23 +1,55 @@
 "use client";
 
-import React from 'react';
-import { Box } from '@mui/material';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Box, CircularProgress } from '@mui/material';
 import { Navbar } from '@/components/layout/navbar';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const { user, isHydrated } = useAuthStore();
+
+  useEffect(() => {
+    if (isHydrated && !user) {
+      router.replace('/login');
+    }
+  }, [isHydrated, user, router]);
+
+  // While Zustand is rehydrating from localStorage, show a spinner
+  // to avoid a flash-redirect for users who ARE authenticated.
+  if (!isHydrated) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          bgcolor: 'background.default',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Not authenticated — render nothing while the redirect fires
+  if (!user) return null;
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
           bgcolor: 'background.default',
-          transition: 'background-color 0.3s ease'
+          transition: 'background-color 0.3s ease',
         }}
       >
         {children}

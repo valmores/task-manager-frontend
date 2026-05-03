@@ -1,6 +1,7 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Container,
   Box,
@@ -8,8 +9,22 @@ import {
 } from '@mui/material';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LoginForm } from '@/components/auth/login-form';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { user, isHydrated } = useAuthStore();
+
+  // If already authenticated, send straight to dashboard
+  useEffect(() => {
+    if (isHydrated && user) {
+      router.replace('/dashboard');
+    }
+  }, [isHydrated, user, router]);
+
+  // Don't flash the login form while determining auth state
+  if (!isHydrated || user) return null;
+
   return (
     <Box
       sx={{
@@ -56,3 +71,4 @@ export default function LoginPage() {
     </Box>
   );
 }
+
