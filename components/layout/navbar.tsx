@@ -25,7 +25,7 @@ export function Navbar() {
   const router = useRouter();
   const theme = useTheme();
   const { user, logout } = useAuthStore();
-  
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -39,7 +39,7 @@ export function Navbar() {
   const handleLogout = () => {
     handleMenuClose();
     logout();
-    router.push('/login');
+    router.replace('/login');
   };
 
   return (
@@ -58,12 +58,12 @@ export function Navbar() {
           <MuiLink
             component={NextLink}
             href="/dashboard"
-            sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1, 
-              textDecoration: 'none', 
-              color: 'inherit' 
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              textDecoration: 'none',
+              color: 'inherit'
             }}
           >
             <Box
@@ -93,14 +93,14 @@ export function Navbar() {
               TaskMaster
             </Typography>
           </MuiLink>
-          
+
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3, ml: 4, flexGrow: 1 }}>
             <MuiLink
               component={NextLink}
               href="/dashboard"
-              sx={{ 
-                color: 'text.primary', 
-                textDecoration: 'none', 
+              sx={{
+                color: 'text.primary',
+                textDecoration: 'none',
                 fontWeight: 600,
                 '&:hover': { color: 'primary.main' }
               }}
@@ -110,9 +110,9 @@ export function Navbar() {
             <MuiLink
               component={NextLink}
               href="/tasks"
-              sx={{ 
-                color: 'text.primary', 
-                textDecoration: 'none', 
+              sx={{
+                color: 'text.primary',
+                textDecoration: 'none',
                 fontWeight: 600,
                 '&:hover': { color: 'primary.main' }
               }}
