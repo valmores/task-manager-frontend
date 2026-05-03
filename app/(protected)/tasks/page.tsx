@@ -19,6 +19,7 @@ import {
   useTheme,
   CircularProgress,
   Alert,
+  Pagination,
 } from '@mui/material';
 import { TaskCard } from './components/task-card';
 import AddIcon from '@mui/icons-material/Add';
@@ -71,6 +72,10 @@ export default function TasksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 7;
+
   const { data: tasks, isLoading, isError } = useTasks();
   const { data: projects } = useProjects();
 
@@ -80,6 +85,11 @@ export default function TasksPage() {
       setProjectFilter(projectId);
     }
   }, [searchParams]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, projectFilter]);
 
   const isAdminOrOwner = user?.role === 'admin' || user?.role === 'project_owner';
 
@@ -99,6 +109,21 @@ export default function TasksPage() {
     const matchesProject = projectFilter === 'all' || task.project?.toString() === projectFilter;
     return matchesSearch && matchesStatus && matchesProject;
   });
+
+  const totalPages = Math.ceil((filteredTasks?.length || 0) / itemsPerPage);
+  const paginatedTasks = filteredTasks?.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Prevent being stranded on an empty page after deletions
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(totalPages);
+    }
+  }, [totalPages, page]);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -128,6 +153,8 @@ export default function TasksPage() {
           </Button>
         )}
       </Box>
+
+      <Box sx={{ flexGrow: 1, minHeight: '65vh', display: 'flex', flexDirection: 'column' }}>
 
       {/* Filters & Actions Bar */}
       <Paper
@@ -210,7 +237,7 @@ export default function TasksPage() {
         <Alert severity="error">Error loading tasks. Please try again later.</Alert>
       ) : filteredTasks && filteredTasks.length > 0 ? (
         <Grid container spacing={2}>
-          {filteredTasks.map((task) => (
+          {paginatedTasks?.map((task) => (
             <Grid key={task.id} size={{ xs: 12 }}>
               <TaskCard
                 task={task}
@@ -231,9 +258,40 @@ export default function TasksPage() {
         </Box>
       )}
 
-      {/* Pagination Placeholder */}
-      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-        {/* We can add MUI Pagination here later */}
+      {totalPages > 1 && (
+        <Box 
+          sx={{ 
+            mt: 'auto', 
+            pt: 6,
+            display: 'flex', 
+            justifyContent: 'center',
+            p: 2,
+            borderRadius: 4,
+          }}
+        >
+          <Pagination 
+            count={totalPages} 
+            page={page} 
+            onChange={handlePageChange} 
+            color="primary"
+            size="large"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                borderRadius: 2,
+                fontWeight: 600,
+                transition: 'all 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                },
+                '&.Mui-selected': {
+                  boxShadow: '0 4px 12px rgba(0,118,255,0.3)',
+                }
+              }
+            }}
+          />
+        </Box>
+      )}
       </Box>
 
       <TaskFormModal
