@@ -16,7 +16,9 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Badge,
 } from '@mui/material';
+import CommentIcon from '@mui/icons-material/Comment';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -26,6 +28,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
 import { Task } from '@/types/task';
 import { useDeleteTask } from '@/hooks/use-tasks';
+import { TaskCommentsModal } from './task-comments-modal';
 
 interface TaskCardProps {
   task: Task;
@@ -45,6 +48,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   getPriorityColor
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [commentsModalOpen, setCommentsModalOpen] = useState(false);
   const deleteMutation = useDeleteTask();
 
   const handleDeleteClick = () => {
@@ -145,6 +149,28 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
               {/* Actions */}
               <Stack direction="row" spacing={0.5}>
+                {/* Internal Notes (Admin/Owner only) */}
+                {(userRole === 'admin' || userRole === 'project_owner') && (
+                  <Tooltip title="Internal Notes">
+                    <IconButton size="small" color="primary" onClick={() => setCommentsModalOpen(true)}>
+                      <Badge
+                        // badgeContent={task.notes?.length || 0}
+                        color="error"
+                        sx={{
+                          '& .MuiBadge-badge': {
+                            fontSize: '0.65rem',
+                            height: 16,
+                            minWidth: 16,
+                            top: 2,
+                            right: 2
+                          }
+                        }}
+                      >
+                        <CommentIcon fontSize="small" />
+                      </Badge>
+                    </IconButton>
+                  </Tooltip>
+                )}
                 {/* Admin gets full Edit; User gets Update Status; Owner gets nothing */}
                 {(userRole === 'admin' || userRole === 'user' || userRole === 'project_owner') && (
                   <Tooltip title={
@@ -187,6 +213,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
+
+      <TaskCommentsModal
+        open={commentsModalOpen}
+        onClose={() => setCommentsModalOpen(false)}
+        task={task}
+      />
     </>
   );
 };

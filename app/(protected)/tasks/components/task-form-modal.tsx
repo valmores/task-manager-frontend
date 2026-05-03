@@ -17,17 +17,21 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  Chip,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FlagIcon from '@mui/icons-material/Flag';
 import EventIcon from '@mui/icons-material/Event';
 import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
-import { Task } from '@/types/task';
+import SendIcon from '@mui/icons-material/Send';
+import NotesIcon from '@mui/icons-material/Notes';
+import { Task, TaskNote } from '@/types/task';
 import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
 import { useProjects } from '@/hooks/use-projects';
 import { useUsers } from '@/hooks/use-users';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useCreateNote } from '@/hooks/use-notes';
 
 interface TaskFormModalProps {
   open: boolean;
@@ -66,6 +70,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
   });
 
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [noteContent, setNoteContent] = useState('');
+  const createNoteMutation = useCreateNote();
 
   const isLoading = createTaskMutation.isPending || updateTaskMutation.isPending;
 
@@ -145,6 +151,20 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       </Typography>
     </Box>
   );
+
+  const handleAddNote = async () => {
+    if (!task || !noteContent.trim()) return;
+    
+    try {
+      await createNoteMutation.mutateAsync({
+        task: task.id,
+        content: noteContent.trim()
+      });
+      setNoteContent('');
+    } catch (error) {
+      console.error('Failed to add note:', error);
+    }
+  };
 
   return (
     <Dialog
@@ -342,6 +362,73 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                 <MenuItem value="on_hold">On Hold</MenuItem>
                 <MenuItem value="done">Done</MenuItem>
               </TextField>
+            )}
+
+            {/* --- INTERNAL NOTES SECTION (ADMIN/OWNER ONLY) --- */}
+            {isEditMode && (isAdmin || isOwner) && (
+              <Box sx={{ mt: 2 }}>
+                <Divider sx={{ mb: 3 }}>
+                  <Chip 
+                    label="Internal Notes" 
+                    size="small" 
+                    icon={<NotesIcon />} 
+                    sx={{ fontWeight: 600, px: 1 }} 
+                  />
+                </Divider>
+
+                {/* Note Input */}
+                <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Add an internal note..."
+                    value={noteContent}
+                    onChange={(e) => setNoteContent(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNote())}
+                    disabled={createNoteMutation.isPending}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  />
+                  <IconButton 
+                    color="primary" 
+                    onClick={handleAddNote}
+                    disabled={!noteContent.trim() || createNoteMutation.isPending}
+                  >
+                    {createNoteMutation.isPending ? <CircularProgress size={20} /> : <SendIcon />}
+                  </IconButton>
+                </Stack>
+
+                {/* Notes List */}
+                <Stack spacing={2} sx={{ maxHeight: 250, overflowY: 'auto', pr: 1 }}>
+                  {task?.notes && task.notes.length > 0 ? (
+                    [...task.notes].reverse().map((note) => (
+                      <Box 
+                        key={note.id} 
+                        sx={{ 
+                          p: 1.5, 
+                          bgcolor: 'action.hover', 
+                          borderRadius: 2,
+                          borderLeft: 4,
+                          borderColor: 'primary.main'
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                            {note.author_name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {new Date(note.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                          </Typography>
+                        </Box>
+                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{note.content}</Typography>
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', textAlign: 'center' }}>
+                      No internal notes yet.
+                    </Typography>
+                  )}
+                </Stack>
+              </Box>
             )}
           </Stack>
         </DialogContent>

@@ -22,6 +22,17 @@ export interface Task {
   created_by: string;
   created_at: string;
   updated_at: string;
+  notes?: TaskNote[];
+}
+
+export interface TaskNote {
+  id: number;
+  task: number;
+  author: number;
+  author_email: string;
+  author_name: string;
+  content: string;
+  created_at: string;
 }
 
 export interface CreateProjectData {
