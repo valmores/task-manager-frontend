@@ -165,8 +165,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ m: 0, p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h5" component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
-            {isEditMode 
-              ? (canUpdateStatusOnly ? 'Update Task Status' : canUpdateAssignmentOnly ? 'Reassign Task' : 'Edit Task') 
+            {isEditMode
+              ? (canUpdateStatusOnly ? 'Update Task Status' : canUpdateAssignmentOnly ? 'Reassign Task' : 'Edit Task')
               : 'Create New Task'
             }
           </Typography>
@@ -216,9 +216,14 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                       value={formData.title}
                       onChange={handleChange}
                       error={!!errors.title}
-                      helperText={errors.title?.[0]}
+                      helperText={errors.title?.[0] || `${(formData.title || '').length}/60`}
                       variant="outlined"
                       autoFocus={!isEditMode}
+                      slotProps={{
+                        input: {
+                          inputProps: { maxLength: 60 }
+                        }
+                      }}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     />
 
@@ -232,8 +237,13 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
                       value={formData.description}
                       onChange={handleChange}
                       error={!!errors.description}
-                      helperText={errors.description?.[0]}
+                      helperText={errors.description?.[0] || `${(formData.description || '').length}/150`}
                       variant="outlined"
+                      slotProps={{
+                        input: {
+                          inputProps: { maxLength: 150 }
+                        }
+                      }}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     />
                   </>
