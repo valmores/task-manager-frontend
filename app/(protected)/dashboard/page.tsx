@@ -38,7 +38,7 @@ export default function DashboardPage() {
             Here is an overview of your tasks for today.
           </Typography>
         </Box>
-        {(user?.role === 'admin' || user?.role === 'project_owner') && (
+        {/* {(user?.role === 'admin' || user?.role === 'project_owner') && (
           <Button
             onClick={handleCreateTask}
             variant="contained"
@@ -47,7 +47,7 @@ export default function DashboardPage() {
           >
             Create Task
           </Button>
-        )}
+        )} */}
       </Box>
 
       <Grid container spacing={3}>
