@@ -99,9 +99,9 @@ export function Navbar() {
               component={NextLink}
               href="/dashboard"
               sx={{
-                color: 'text.primary',
+                color: 'text.secondary',
                 textDecoration: 'none',
-                fontWeight: 600,
+                fontWeight: 500,
                 '&:hover': { color: 'primary.main' }
               }}
             >
@@ -109,11 +109,23 @@ export function Navbar() {
             </MuiLink>
             <MuiLink
               component={NextLink}
+              href="/projects"
+              sx={{
+                color: 'text.secondary',
+                textDecoration: 'none',
+                fontWeight: 500,
+                '&:hover': { color: 'primary.main' }
+              }}
+            >
+              Projects
+            </MuiLink>
+            <MuiLink
+              component={NextLink}
               href="/tasks"
               sx={{
-                color: 'text.primary',
+                color: 'text.secondary',
                 textDecoration: 'none',
-                fontWeight: 600,
+                fontWeight: 500,
                 '&:hover': { color: 'primary.main' }
               }}
             >
