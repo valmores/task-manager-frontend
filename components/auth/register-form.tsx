@@ -25,7 +25,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-import { useRegister } from '@/hooks/use-auth';
+import { useRegister } from '@/hooks/auth/use-auth';
 
 export function RegisterForm() {
   const [firstName, setFirstName] = useState('');

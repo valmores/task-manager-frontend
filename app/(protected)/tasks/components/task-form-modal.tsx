@@ -27,11 +27,11 @@ import PersonIcon from '@mui/icons-material/Person';
 import SendIcon from '@mui/icons-material/Send';
 import NotesIcon from '@mui/icons-material/Notes';
 import { Task, TaskNote } from '@/types/task';
-import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
-import { useProjects } from '@/hooks/use-projects';
-import { useUsers } from '@/hooks/use-users';
+import { useCreateTask, useUpdateTask } from '@/hooks/tasks/use-tasks';
+import { useProjects } from '@/hooks/projects/use-projects';
+import { useUsers } from '@/hooks/users/use-users';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useCreateNote } from '@/hooks/use-notes';
+import { useCreateNote } from '@/hooks/tasks/use-notes';
 
 interface TaskFormModalProps {
   open: boolean;

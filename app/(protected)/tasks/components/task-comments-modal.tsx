@@ -19,7 +19,7 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
 import { Task } from "@/types/task";
-import { useCreateNote } from "@/hooks/use-notes";
+import { useCreateNote } from "@/hooks/tasks/use-notes";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface TaskCommentsModalProps {

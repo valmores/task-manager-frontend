@@ -12,7 +12,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useAuthStore } from '@/store/useAuthStore';
 import { TaskStatusCard } from './components/status-card';
 import { TaskFormModal } from '../tasks/components/task-form-modal';
-import { useTasks } from '@/hooks/use-tasks';
+import { useTasks } from '@/hooks/tasks/use-tasks';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();

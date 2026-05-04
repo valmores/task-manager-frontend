@@ -41,7 +41,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { AdminUser } from '@/types/task';
 import { AdminUserModal } from './components/admin-user-modal';
 
-import { useAdminUsers, useUpdateAdminUser, useDeactivateUser } from '@/hooks/use-admin-users';
+import { useAdminUsers, useUpdateAdminUser, useDeactivateUser } from '@/hooks/users/use-admin-users';
 
 const getRoleColor = (role: string) => {
   switch (role) {

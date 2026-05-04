@@ -31,7 +31,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import FolderIcon from '@mui/icons-material/Folder';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useProjects, useDeleteProject } from '@/hooks/use-projects';
+import { useProjects, useDeleteProject } from '@/hooks/projects/use-projects';
 import { ProjectFormModal } from './components/project-form-modal';
 import { Project } from '@/types/task';
 

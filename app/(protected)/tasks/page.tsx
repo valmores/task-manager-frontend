@@ -27,8 +27,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FolderIcon from '@mui/icons-material/Folder';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useTasks } from '@/hooks/use-tasks';
-import { useProjects } from '@/hooks/use-projects';
+import { useTasks } from '@/hooks/tasks/use-tasks';
+import { useProjects } from '@/hooks/projects/use-projects';
 import { TaskFormModal } from './components/task-form-modal';
 import { Task } from '@/types/task';
 

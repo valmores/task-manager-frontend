@@ -27,7 +27,7 @@ import EventIcon from '@mui/icons-material/Event';
 import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
 import { Task } from '@/types/task';
-import { useDeleteTask } from '@/hooks/use-tasks';
+import { useDeleteTask } from '@/hooks/tasks/use-tasks';
 import { TaskCommentsModal } from './task-comments-modal';
 
 interface TaskCardProps {

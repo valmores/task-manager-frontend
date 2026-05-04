@@ -19,7 +19,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { AdminUser } from '@/types/task';
-import { useAdminCreateUser, useUpdateAdminUser } from '@/hooks/use-admin-users';
+import { useAdminCreateUser, useUpdateAdminUser } from '@/hooks/users/use-admin-users';
 import { Alert } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 

@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Project } from '@/types/task';
-import { useCreateProject, useUpdateProject } from '@/hooks/use-projects';
+import { useCreateProject, useUpdateProject } from '@/hooks/projects/use-projects';
 
 interface ProjectFormModalProps {
   open: boolean;

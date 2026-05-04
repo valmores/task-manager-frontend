@@ -22,7 +22,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-import { useLogin } from '@/hooks/use-auth';
+import { useLogin } from '@/hooks/auth/use-auth';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
