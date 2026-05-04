@@ -13,6 +13,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { TaskStatusCard } from './components/status-card';
 import { TaskFormModal } from '../tasks/components/task-form-modal';
 import { useTasks } from '@/hooks/tasks/use-tasks';
+import { DashboardCharts } from './components/dashboard-charts';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -90,6 +91,10 @@ export default function DashboardPage() {
           />
         </Grid>
       </Grid>
+
+      {tasks && tasks.length > 0 && (
+        <DashboardCharts tasks={tasks} />
+      )}
 
       <TaskFormModal
         open={isModalOpen}
