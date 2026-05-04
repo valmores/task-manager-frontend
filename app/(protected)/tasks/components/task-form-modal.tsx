@@ -3,35 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
-  TextField,
   Box,
-  Typography,
-  IconButton,
-  MenuItem,
   Stack,
   useTheme,
-  CircularProgress,
-  Divider,
-  Grid,
-  Chip,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import FlagIcon from '@mui/icons-material/Flag';
-import EventIcon from '@mui/icons-material/Event';
-import FolderIcon from '@mui/icons-material/Folder';
-import PersonIcon from '@mui/icons-material/Person';
-import SendIcon from '@mui/icons-material/Send';
-import NotesIcon from '@mui/icons-material/Notes';
-import { Task, TaskNote } from '@/types/task';
+import { Task } from '@/types/task';
 import { useCreateTask, useUpdateTask } from '@/hooks/tasks/use-tasks';
 import { useProjects } from '@/hooks/projects/use-projects';
 import { useUsers } from '@/hooks/users/use-users';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCreateNote } from '@/hooks/tasks/use-notes';
+
+// Sub-components
+import { TaskFormHeader } from './task-form/task-form-header';
+import { TaskFormReadOnlyView } from './task-form/task-form-read-only-view';
+import { TaskFormCoreFields } from './task-form/task-form-core-fields';
+import { TaskFormMetadataFields } from './task-form/task-form-metadata-fields';
+import { TaskFormStatusField } from './task-form/task-form-status-field';
+import { TaskFormActions } from './task-form/task-form-actions';
 
 interface TaskFormModalProps {
   open: boolean;
@@ -141,20 +131,9 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
     }
   };
 
-  const renderReadOnlyField = (label: string, value: string | null | undefined, Icon: any) => (
-    <Box sx={{ mb: 2 }}>
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-        <Icon sx={{ fontSize: 16, mr: 0.5 }} /> {label}
-      </Typography>
-      <Typography variant="body1" sx={{ fontWeight: 500, ml: 2.5 }}>
-        {value || 'Not specified'}
-      </Typography>
-    </Box>
-  );
-
   const handleAddNote = async () => {
     if (!task || !noteContent.trim()) return;
-    
+
     try {
       await createNoteMutation.mutateAsync({
         task: task.id,
@@ -183,268 +162,67 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       }}
     >
       <Box component="form" onSubmit={handleSubmit}>
-        <DialogTitle sx={{ m: 0, p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h5" component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
-            {isEditMode
-              ? (canUpdateStatusOnly ? 'Update Task Status' : canUpdateAssignmentOnly ? 'Reassign Task' : 'Edit Task')
-              : 'Create New Task'
-            }
-          </Typography>
-          <IconButton onClick={onClose} sx={{ color: (theme) => theme.palette.grey[500] }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
+        <TaskFormHeader
+          isEditMode={isEditMode}
+          canUpdateStatusOnly={canUpdateStatusOnly}
+          canUpdateAssignmentOnly={canUpdateAssignmentOnly}
+          onClose={onClose}
+        />
 
         <DialogContent dividers sx={{ p: 3 }}>
           <Stack spacing={3}>
             {/* --- READ ONLY VIEW FOR REGULAR USERS / OWNERS (partial) --- */}
             {(canUpdateStatusOnly || canUpdateAssignmentOnly) && isEditMode && (
-              <Box>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>{formData.title}</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>{formData.description || 'No description provided.'}</Typography>
-                <Divider sx={{ mb: 3 }} />
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 6, md: 6 }}>
-                    {renderReadOnlyField('Project', task?.project_name, FolderIcon)}
-                  </Grid>
-                  <Grid size={{ xs: 6, md: 6 }}>
-                    {renderReadOnlyField('Priority', formData.priority.toUpperCase(), FlagIcon)}
-                  </Grid>
-                  <Grid size={{ xs: 6, md: 6 }}>
-                    {renderReadOnlyField('Due Date', formData.due_date, EventIcon)}
-                  </Grid>
-                  {canUpdateAssignmentOnly && (
-                    <Grid size={{ xs: 6, md: 6 }}>
-                      {renderReadOnlyField('Status', formData.status.toUpperCase(), FlagIcon)}
-                    </Grid>
-                  )}
-                </Grid>
-              </Box>
+              <TaskFormReadOnlyView
+                task={task}
+                formData={formData}
+                canUpdateAssignmentOnly={canUpdateAssignmentOnly}
+              />
             )}
 
             {/* --- FULL EDIT VIEW FOR ADMINS / CREATE VIEW FOR OWNERS / ASSIGNMENT FOR OWNERS --- */}
             {((!canUpdateStatusOnly && !canUpdateAssignmentOnly) || !isEditMode || canUpdateAssignmentOnly) && (
               <>
-                {!canUpdateAssignmentOnly && (
-                  <>
-                    <TextField
-                      required
-                      fullWidth
-                      disabled={!canEditAllFields && isEditMode}
-                      label="Task Title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleChange}
-                      error={!!errors.title}
-                      helperText={errors.title?.[0] || `${(formData.title || '').length}/60`}
-                      variant="outlined"
-                      autoFocus={!isEditMode}
-                      slotProps={{
-                        input: {
-                          inputProps: { maxLength: 60 }
-                        }
-                      }}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                    />
+                <TaskFormCoreFields
+                  formData={formData}
+                  errors={errors}
+                  handleChange={handleChange}
+                  isEditMode={isEditMode}
+                  canEditAllFields={canEditAllFields}
+                />
 
-                    <TextField
-                      fullWidth
-                      multiline
-                      rows={3}
-                      disabled={!canEditAllFields && isEditMode}
-                      label="Description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      error={!!errors.description}
-                      helperText={errors.description?.[0] || `${(formData.description || '').length}/150`}
-                      variant="outlined"
-                      slotProps={{
-                        input: {
-                          inputProps: { maxLength: 150 }
-                        }
-                      }}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                    />
-                  </>
-                )}
-
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                  {!canUpdateAssignmentOnly && (
-                    <TextField
-                      select
-                      fullWidth
-                      disabled={!canEditAllFields && isEditMode}
-                      label="Project (Optional)"
-                      name="project"
-                      value={formData.project}
-                      onChange={handleChange}
-                      error={!!errors.project}
-                      helperText={errors.project?.[0]}
-                      slotProps={{ input: { startAdornment: <FolderIcon sx={{ mr: 1, color: 'primary.main' }} /> } }}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                    >
-                      <MenuItem value="">None</MenuItem>
-                      {projects?.map((p) => <MenuItem key={p.id} value={p.id.toString()}>{p.name}</MenuItem>)}
-                    </TextField>
-                  )}
-
-                  <TextField
-                    select
-                    fullWidth
-                    disabled={!canEditAllFields && isEditMode && !canUpdateAssignmentOnly}
-                    label="Assign To"
-                    name="assigned_to"
-                    value={formData.assigned_to}
-                    onChange={handleChange}
-                    error={!!errors.assigned_to}
-                    helperText={errors.assigned_to?.[0]}
-                    slotProps={{ input: { startAdornment: <PersonIcon sx={{ mr: 1, color: 'primary.main' }} /> } }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: canUpdateAssignmentOnly ? 'primary.50' : 'transparent' } }}
-                  >
-                    <MenuItem value="">Unassigned</MenuItem>
-                    {users?.map((u) => (
-                      <MenuItem key={u.id} value={u.id.toString()}>
-                        {u.first_name} {u.last_name} ({u.email})
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Stack>
-
-                {!canUpdateAssignmentOnly && (
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                    <TextField
-                      select
-                      fullWidth
-                      disabled={!canEditAllFields && isEditMode}
-                      label="Priority"
-                      name="priority"
-                      value={formData.priority}
-                      onChange={handleChange}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                    >
-                      <MenuItem value="low">Low</MenuItem>
-                      <MenuItem value="medium">Medium</MenuItem>
-                      <MenuItem value="high">High</MenuItem>
-                    </TextField>
-
-                    <TextField
-                      fullWidth
-                      disabled={!canEditAllFields && isEditMode}
-                      label="Due Date"
-                      name="due_date"
-                      type="date"
-                      value={formData.due_date}
-                      onChange={handleChange}
-                      error={!!errors.due_date}
-                      helperText={errors.due_date?.[0]}
-                      slotProps={{ inputLabel: { shrink: true } }}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                    />
-                  </Stack>
-                )}
+                <TaskFormMetadataFields
+                  formData={formData}
+                  errors={errors}
+                  handleChange={handleChange}
+                  isEditMode={isEditMode}
+                  canEditAllFields={canEditAllFields}
+                  canUpdateAssignmentOnly={canUpdateAssignmentOnly}
+                  projects={projects}
+                  users={users}
+                />
               </>
             )}
 
             {/* --- STATUS FIELD (ALWAYS EDITABLE IN EDIT MODE FOR ADMIN/USER, NOT OWNER) --- */}
             {isEditMode && !canUpdateAssignmentOnly && (
-              <TextField
-                select
-                fullWidth
-                label="Status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: canUpdateStatusOnly ? 'primary.50' : 'transparent' } }}
-              >
-                <MenuItem value="todo">To Do</MenuItem>
-                <MenuItem value="in_progress">In Progress</MenuItem>
-                <MenuItem value="on_hold">On Hold</MenuItem>
-                <MenuItem value="done">Done</MenuItem>
-              </TextField>
-            )}
-
-            {/* --- INTERNAL NOTES SECTION (ADMIN/OWNER ONLY) --- */}
-            {isEditMode && (isAdmin || isOwner) && (
-              <Box sx={{ mt: 2 }}>
-                <Divider sx={{ mb: 3 }}>
-                  <Chip 
-                    label="Internal Notes" 
-                    size="small" 
-                    icon={<NotesIcon />} 
-                    sx={{ fontWeight: 600, px: 1 }} 
-                  />
-                </Divider>
-
-                {/* Note Input */}
-                <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="Add an internal note..."
-                    value={noteContent}
-                    onChange={(e) => setNoteContent(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNote())}
-                    disabled={createNoteMutation.isPending}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                  />
-                  <IconButton 
-                    color="primary" 
-                    onClick={handleAddNote}
-                    disabled={!noteContent.trim() || createNoteMutation.isPending}
-                  >
-                    {createNoteMutation.isPending ? <CircularProgress size={20} /> : <SendIcon />}
-                  </IconButton>
-                </Stack>
-
-                {/* Notes List */}
-                <Stack spacing={2} sx={{ maxHeight: 250, overflowY: 'auto', pr: 1 }}>
-                  {task?.notes && task.notes.length > 0 ? (
-                    [...task.notes].reverse().map((note) => (
-                      <Box 
-                        key={note.id} 
-                        sx={{ 
-                          p: 1.5, 
-                          bgcolor: 'action.hover', 
-                          borderRadius: 2,
-                          borderLeft: 4,
-                          borderColor: 'primary.main'
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                          <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                            {note.author_name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {new Date(note.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
-                          </Typography>
-                        </Box>
-                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{note.content}</Typography>
-                      </Box>
-                    ))
-                  ) : (
-                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', textAlign: 'center' }}>
-                      No internal notes yet.
-                    </Typography>
-                  )}
-                </Stack>
-              </Box>
+              <TaskFormStatusField
+                formData={formData}
+                handleChange={handleChange}
+                canUpdateStatusOnly={canUpdateStatusOnly}
+              />
             )}
           </Stack>
         </DialogContent>
 
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={onClose} sx={{ color: 'text.secondary', fontWeight: 600 }}>Cancel</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={!formData.title || isLoading}
-            sx={{ px: 4, py: 1, borderRadius: 2, fontWeight: 700, minWidth: 140 }}
-          >
-            {isLoading ? <CircularProgress size={24} color="inherit" /> : (isEditMode ? 'Update Task' : 'Create Task')}
-          </Button>
-        </DialogActions>
+        <TaskFormActions
+          onClose={onClose}
+          isLoading={isLoading}
+          isEditMode={isEditMode}
+          isSubmitDisabled={!formData.title}
+        />
       </Box>
     </Dialog>
   );
 };
+
