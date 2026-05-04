@@ -28,21 +28,74 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [lockoutTimer, setLockoutTimer] = useState<number>(0);
 
-  const { mutate, isPending, errorMsg } = useLogin();
+  const { mutate, isPending, errorMsg, error } = useLogin();
+
+  // Handle Lockout Timer (Persistence and Countdown)
+  React.useEffect(() => {
+    const lockoutUntil = localStorage.getItem('login_lockout_until');
+    if (lockoutUntil) {
+      const remaining = Math.ceil((parseInt(lockoutUntil) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setLockoutTimer(remaining);
+      } else {
+        localStorage.removeItem('login_lockout_until');
+      }
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (lockoutTimer <= 0) return;
+
+    const interval = setInterval(() => {
+      setLockoutTimer((prev) => {
+        if (prev <= 1) {
+          localStorage.removeItem('login_lockout_until');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lockoutTimer]);
+
+  // Catch 429 Lockout Error
+  React.useEffect(() => {
+    if ((error as any)?.response?.status === 429) {
+      // const duration = 60 * 60; // 1 hour
+      const duration = 30; // 30 seconds
+      const until = Date.now() + duration * 1000;
+      localStorage.setItem('login_lockout_until', until.toString());
+      setLockoutTimer(duration);
+    }
+  }, [error]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (lockoutTimer > 0) return;
     mutate({ email, password });
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
     <Box component="form" onSubmit={handleLogin} sx={{ width: '100%', mt: 1 }}>
-      {errorMsg && (
+      {lockoutTimer > 0 ? (
+        <Alert severity="warning" sx={{ mb: 3, fontWeight: 600 }}>
+          Too many attempts. <br />
+          Try again in: {formatTime(lockoutTimer)}
+        </Alert>
+      ) : errorMsg ? (
         <Alert severity="error" sx={{ mb: 3 }}>
           {errorMsg}
         </Alert>
-      )}
+      ) : null}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
@@ -107,7 +160,7 @@ export function LoginForm() {
         type="submit"
         fullWidth
         variant="contained"
-        disabled={isPending}
+        disabled={isPending || lockoutTimer > 0}
         sx={{
           mt: 4,
           mb: 3,
