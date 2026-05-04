@@ -108,9 +108,11 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
 
     const submissionData = {
       ...formData,
+      status: isEditMode ? formData.status : 'todo',
       project: formData.project ? parseInt(formData.project) : null,
       assigned_to: formData.assigned_to ? parseInt(formData.assigned_to) : null,
     };
+
 
     const mutationOptions = {
       onSuccess: (data: any) => {
@@ -204,14 +206,16 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
               </>
             )}
 
-            {/* --- STATUS FIELD (ALWAYS EDITABLE IN EDIT MODE FOR ADMIN/USER, NOT OWNER) --- */}
-            {isEditMode && !canUpdateAssignmentOnly && (
+            {/* --- STATUS FIELD (ALWAYS EDITABLE IN EDIT MODE FOR ADMIN/USER, NOT OWNER, DISABLED IN CREATE) --- */}
+            {(!isEditMode || (isEditMode && !canUpdateAssignmentOnly)) && (
               <TaskFormStatusField
                 formData={formData}
                 handleChange={handleChange}
                 canUpdateStatusOnly={canUpdateStatusOnly}
+                disabled={!isEditMode}
               />
             )}
+
           </Stack>
         </DialogContent>
 

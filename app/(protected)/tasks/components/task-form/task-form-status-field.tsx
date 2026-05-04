@@ -9,22 +9,25 @@ interface TaskFormStatusFieldProps {
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   canUpdateStatusOnly: boolean;
+  disabled?: boolean;
 }
 
 export const TaskFormStatusField: React.FC<TaskFormStatusFieldProps> = ({
   formData,
   handleChange,
   canUpdateStatusOnly,
+  disabled,
 }) => {
   return (
     <TextField
       select
       fullWidth
+      disabled={disabled}
       label="Status"
       name="status"
       value={formData.status}
       onChange={handleChange}
-      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: canUpdateStatusOnly ? 'primary.50' : 'transparent' } }}
+      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: (canUpdateStatusOnly || (disabled && !formData.status)) ? 'primary.50' : 'transparent' } }}
     >
       <MenuItem value="todo">To Do</MenuItem>
       <MenuItem value="in_progress">In Progress</MenuItem>
@@ -33,3 +36,4 @@ export const TaskFormStatusField: React.FC<TaskFormStatusFieldProps> = ({
     </TextField>
   );
 };
+
