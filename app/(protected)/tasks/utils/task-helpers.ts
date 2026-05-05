@@ -26,3 +26,17 @@ export const getPriorityColor = (priority: string) => {
     default: return 'inherit';
   }
 };
+
+export const isOverdue = (dueDate: string | null, status: string) => {
+  if (!dueDate || status === 'done') return false;
+  
+  // Split YYYY-MM-DD and create a local date to avoid timezone shifts
+  const [year, month, day] = dueDate.split('-').map(Number);
+  const dueDateTime = new Date(year, month - 1, day).getTime();
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTime = today.getTime();
+  
+  return dueDateTime < todayTime;
+};

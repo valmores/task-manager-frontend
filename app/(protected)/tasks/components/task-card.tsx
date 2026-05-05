@@ -29,6 +29,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import { Task } from '@/types/task';
 import { useDeleteTask } from '@/hooks/tasks/use-tasks';
 import { TaskCommentsModal } from './task-comments-modal';
+import { motion } from 'framer-motion';
+import WarningIcon from '@mui/icons-material/Warning';
+import { isOverdue } from '../utils/task-helpers';
 
 interface TaskCardProps {
   task: Task;
@@ -64,18 +67,48 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   return (
     <>
       <Card
+        component={motion.div}
+        animate={isOverdue(task.due_date, task.status) ? {
+          boxShadow: [
+            '0 2px 10px rgba(0,0,0,0.05)',
+            '0 0px 15px rgba(211, 47, 47, 0.4)',
+            '0 2px 10px rgba(0,0,0,0.05)'
+          ],
+          borderColor: ['#e0e0e0', '#d32f2f', '#e0e0e0'],
+        } : {}}
+        transition={isOverdue(task.due_date, task.status) ? {
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        } : {}}
         sx={{
           borderRadius: 2,
           boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
           transition: 'all 0.2s ease-in-out',
           '&:hover': {
-            boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
-            borderColor: 'primary.light',
+            boxShadow: isOverdue(task.due_date, task.status) 
+              ? '0 8px 25px rgba(211, 47, 47, 0.2)' 
+              : '0 8px 20px rgba(0,0,0,0.08)',
+            borderColor: isOverdue(task.due_date, task.status) ? 'error.main' : 'primary.light',
           },
           border: '1px solid',
-          borderColor: 'divider',
+          borderColor: isOverdue(task.due_date, task.status) ? 'error.main' : 'divider',
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
+        {isOverdue(task.due_date, task.status) && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: 4,
+              height: '100%',
+              bgcolor: 'error.main',
+            }}
+          />
+        )}
         <CardContent sx={{ p: '12px 20px !important' }}>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
@@ -126,10 +159,23 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 </Typography>
               </Stack>
 
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', minWidth: 100 }}>
-                <EventIcon fontSize="small" color="action" />
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+              <Stack 
+                direction="row" 
+                spacing={0.5} 
+                sx={{ 
+                  alignItems: 'center', 
+                  minWidth: 100,
+                  color: isOverdue(task.due_date, task.status) ? 'error.main' : 'text.secondary'
+                }}
+              >
+                {isOverdue(task.due_date, task.status) ? (
+                  <WarningIcon fontSize="small" sx={{ animation: 'pulse 2s infinite' }} />
+                ) : (
+                  <EventIcon fontSize="small" />
+                )}
+                <Typography variant="caption" sx={{ fontWeight: 700 }}>
                   {task.due_date || 'No date'}
+                  {isOverdue(task.due_date, task.status) && " (Overdue)"}
                 </Typography>
               </Stack>
 
