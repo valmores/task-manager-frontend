@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import NextLink from 'next/link';
+import { motion } from 'framer-motion';
 import {
   AppBar,
   Toolbar,
@@ -26,7 +27,15 @@ export function Navbar() {
   const router = useRouter();
   const theme = useTheme();
   const { user, logout } = useAuthStore();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
+
+  const isActive = (path: string) => {
+    if (path === '/dashboard') {
+      return pathname === '/dashboard' || pathname === '/';
+    }
+    return pathname === path || pathname?.startsWith(path + '/');
+  };
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -98,56 +107,49 @@ export function Navbar() {
           </MuiLink>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3, ml: 4, flexGrow: 1 }}>
-            <MuiLink
-              component={NextLink}
-              href="/dashboard"
-              sx={{
-                color: 'text.secondary',
-                textDecoration: 'none',
-                fontWeight: 500,
-                '&:hover': { color: 'primary.main' }
-              }}
-            >
-              Dashboard
-            </MuiLink>
-            <MuiLink
-              component={NextLink}
-              href="/projects"
-              sx={{
-                color: 'text.secondary',
-                textDecoration: 'none',
-                fontWeight: 500,
-                '&:hover': { color: 'primary.main' }
-              }}
-            >
-              Projects
-            </MuiLink>
-            <MuiLink
-              component={NextLink}
-              href="/tasks"
-              sx={{
-                color: 'text.secondary',
-                textDecoration: 'none',
-                fontWeight: 500,
-                '&:hover': { color: 'primary.main' }
-              }}
-            >
-              Tasks
-            </MuiLink>
-            {user?.role === 'admin' && (
+            {[
+              { name: 'Dashboard', href: '/dashboard' },
+              { name: 'Projects', href: '/projects' },
+              { name: 'Tasks', href: '/tasks' },
+              ...(user?.role === 'admin' ? [{ name: 'Admin', href: '/admin' }] : []),
+            ].map((link) => (
               <MuiLink
+                key={link.href}
                 component={NextLink}
-                href="/admin"
+                href={link.href}
                 sx={{
-                  color: 'text.secondary',
+                  color: isActive(link.href) ? 'primary.main' : 'text.secondary',
                   textDecoration: 'none',
-                  fontWeight: 500,
+                  fontWeight: isActive(link.href) ? 600 : 500,
+                  position: 'relative',
+                  pb: 0.5,
+                  transition: 'color 0.2s',
                   '&:hover': { color: 'primary.main' }
                 }}
               >
-                Admin
+                {link.name}
+                {isActive(link.href) && (
+                  <Box
+                    component={motion.div}
+                    layoutId="activeTab"
+                    sx={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 2,
+                      bgcolor: 'primary.main',
+                      borderRadius: '1px',
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 380,
+                      damping: 30
+                    }}
+                  />
+                )}
               </MuiLink>
-            )}
+            ))}
           </Box>
 
           {/* Actions */}
