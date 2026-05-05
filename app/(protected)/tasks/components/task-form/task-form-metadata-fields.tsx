@@ -102,7 +102,12 @@ export const TaskFormMetadataFields: React.FC<TaskFormMetadataFieldsProps> = ({
             onChange={handleChange}
             error={!!errors.due_date}
             helperText={errors.due_date?.[0]}
-            slotProps={{ inputLabel: { shrink: true } }}
+            slotProps={{
+              inputLabel: { shrink: true },
+              htmlInput: {
+                min: new Date().toISOString().split('T')[0],
+              },
+            }}
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
           />
         </Stack>
