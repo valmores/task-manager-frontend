@@ -35,13 +35,6 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
                 </Stack>
             </Paper>
 
-            {/* Tabs */}
-            <Paper sx={{ mb: 2, }}>
-                <Tabs value={currentTab} onChange={handleChange}>
-                    <Tab label="Profile" value="overview" />
-                </Tabs>
-            </Paper>
-
             {/* Content */}
             <Paper sx={{ p: 3, borderRadius: 1 }}>
                 {children}

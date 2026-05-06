@@ -111,8 +111,8 @@ export default function ProfilePage() {
                 onChange={handlePasswordChange}
                 onSubmit={handleChangePassword}
                 errors={passwordErrors}
+                isLoading={isPending}
             />
-            {isPending && <CircularProgress size={24} sx={{ mt: 2, alignSelf: 'center' }} />}
             {message && (
                 <Alert
                     severity={isSuccess ? "success" : (isError || message.includes("match") || message.includes("fill") ? "error" : "info")}

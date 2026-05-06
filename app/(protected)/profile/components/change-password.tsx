@@ -10,6 +10,7 @@ import {
     IconButton,
     InputAdornment,
 } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -24,6 +25,7 @@ type Props = {
     passwords: PasswordState;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSubmit: () => void;
+    isLoading?: boolean;
     errors?: {
         current?: string;
         new?: string;
@@ -35,6 +37,7 @@ export default function ChangePassword({
     passwords,
     onChange,
     onSubmit,
+    isLoading,
     errors,
 }: Props) {
     const [show, setShow] = useState({
@@ -157,9 +160,14 @@ export default function ChangePassword({
                     variant="contained"
                     color="error"
                     onClick={onSubmit}
-                    disabled={!isFormValid}
+                    disabled={!isFormValid || isLoading}
+                    sx={{ minWidth: 160 }}
                 >
-                    Update Password
+                    {isLoading ? (
+                        <CircularProgress size={18} color="inherit" />
+                    ) : (
+                        "Update Password"
+                    )}
                 </Button>
             </Stack>
         </Box>
