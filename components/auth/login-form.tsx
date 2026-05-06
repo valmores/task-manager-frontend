@@ -64,8 +64,8 @@ export function LoginForm() {
   // Catch 429 Lockout Error
   React.useEffect(() => {
     if ((error as any)?.response?.status === 429) {
-      // const duration = 60 * 60; // 1 hour
-      const duration = 30; // 30 seconds
+      const backendDuration = (error as any)?.response?.data?.lockout_duration;
+      const duration = backendDuration || 30;
       const until = Date.now() + duration * 1000;
       localStorage.setItem('login_lockout_until', until.toString());
       setLockoutTimer(duration);
