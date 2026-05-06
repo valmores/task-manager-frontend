@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, IconButton, Avatar, Menu, MenuItem, Typography, useTheme } from '@mui/material';
+import { Box, IconButton, Avatar, Menu, MenuItem, Typography, useTheme, Divider } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useRouter } from 'next/navigation';
 
 interface UserMenuProps {
   user: any;
@@ -14,9 +15,37 @@ interface UserMenuProps {
 export const UserMenu = ({ user, onLogout }: UserMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const theme = useTheme();
+  const router = useRouter()
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
+  const handleProfileClick = () => {
+    handleClose();
+    //TODO: add profile route
+    router.push('/profile');
+  }
+
+  const menuItems = [
+    {
+      label: "Profile",
+      onClick: handleProfileClick,
+      showDivider: true,
+    },
+    // {
+    //   label: "Settings",
+    //   onClick: handleClose,
+    //   showDivider: false,
+    // },
+    {
+      label: "Logout",
+      onClick: () => {
+        handleClose();
+        onLogout();
+      },
+      icon: <LogoutIcon fontSize="small" sx={{ mr: 1 }} />,
+      sx: { color: "error.main", mt: 0.5 },
+    },
+  ];
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -42,16 +71,15 @@ export const UserMenu = ({ user, onLogout }: UserMenuProps) => {
           </Typography>
         </Box>
         <Box sx={{ borderTop: `1px solid ${theme.palette.divider}`, mt: 1 }}>
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              onLogout();
-            }}
-            sx={{ color: 'error.main', mt: 0.5 }}
-          >
-            <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
-            Logout
-          </MenuItem>
+          {menuItems.map((item, index) => (
+            <React.Fragment key={index}>
+              <MenuItem onClick={item.onClick} sx={item.sx}>
+                {item.icon}
+                {item.label}
+              </MenuItem>
+              {item.showDivider && <Divider />}
+            </React.Fragment>
+          ))}
         </Box>
       </Menu>
     </Box>
