@@ -19,7 +19,7 @@ import { Task } from '@/types/task';
 import { TaskCard } from './components/task-card';
 import { TaskFormModal } from './components/task-form-modal';
 import { TaskListHeader } from './components/task-list-header';
-import { TaskFilters } from './components/task-filters';
+import { ListFilters } from '@/components/ui/list-filters';
 import { TaskPagination } from './components/task-pagination';
 
 // Utils
@@ -103,9 +103,10 @@ export default function TasksPage() {
       />
 
       <Box sx={{ flexGrow: 1, minHeight: '65vh', display: 'flex', flexDirection: 'column' }}>
-        <TaskFilters 
+        <ListFilters 
           search={search}
           onSearchChange={setSearch}
+          searchPlaceholder="Search tasks..."
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
           projectFilter={projectFilter}

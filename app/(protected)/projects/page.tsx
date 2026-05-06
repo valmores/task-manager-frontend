@@ -6,30 +6,11 @@ import {
   Container,
   Typography,
   Box,
-  Button,
   Grid,
-  Stack,
-  Card,
-  CardContent,
-  CardActions,
-  IconButton,
-  Tooltip,
-  Chip,
-  Divider,
   CircularProgress,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   Pagination,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import FolderIcon from '@mui/icons-material/Folder';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useProjects, useDeleteProject } from '@/hooks/projects/use-projects';
 import { ProjectFormModal } from './components/project-form-modal';
@@ -37,16 +18,30 @@ import { Project } from '@/types/task';
 import DeleteProjectDialog from './components/DeleteProjectDialog';
 import ProjectCard from "./components/ProjectCard";
 import ProjectsHeader from './components/ProjectsHeader';
+import { ListFilters } from '@/components/ui/list-filters';
 
 export default function ProjectsPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { data: projects, isLoading, isError } = useProjects();
 
+  // Search State
+  const [search, setSearch] = useState('');
+
   // Pagination State
   const [page, setPage] = useState(1);
   const itemsPerPage = 6;
   const deleteMutation = useDeleteProject();
+
+  // Filtering Logic
+  const filteredProjects = React.useMemo(() => {
+    if (!projects) return [];
+    return projects.filter((project) => 
+      project.name.toLowerCase().includes(search.toLowerCase()) ||
+      project.description?.toLowerCase().includes(search.toLowerCase()) ||
+      project.created_by.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [projects, search]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -82,20 +77,25 @@ export default function ProjectsPage() {
     router.push(`/tasks?project=${projectId}`);
   };
 
-  const totalPages = Math.ceil((projects?.length || 0) / itemsPerPage);
-  const paginatedProjects = projects?.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const totalPages = Math.ceil((filteredProjects.length || 0) / itemsPerPage);
+  const paginatedProjects = filteredProjects.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Prevent being stranded on an empty page after deletions
+  // Prevent being stranded on an empty page after deletions or filtering
   useEffect(() => {
     if (page > totalPages && totalPages > 0) {
       setPage(totalPages);
     }
   }, [totalPages, page]);
+
+  // Reset page on search
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -107,6 +107,12 @@ export default function ProjectsPage() {
 
       <Box sx={{ flexGrow: 1, minHeight: '60vh', display: 'flex', flexDirection: 'column' }}>
 
+        <ListFilters 
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search projects by name, description, or owner..."
+        />
+
         {/* Projects Grid */}
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -114,7 +120,7 @@ export default function ProjectsPage() {
           </Box>
         ) : isError ? (
           <Alert severity="error">Error loading projects. Please try again later.</Alert>
-        ) : projects && projects.length > 0 ? (
+        ) : filteredProjects.length > 0 ? (
           <>
             <Grid container spacing={3}>
               {paginatedProjects?.map((project) => (
@@ -168,7 +174,7 @@ export default function ProjectsPage() {
         ) : (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Typography variant="h6" color="text.secondary">
-              No projects found.
+              No projects found{search ? ` matching "${search}"` : ""}.
             </Typography>
           </Box>
         )}
