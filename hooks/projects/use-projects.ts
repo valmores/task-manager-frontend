@@ -47,6 +47,7 @@ export function useDeleteProject() {
 
   return useMutation({
     mutationFn: async (id: number) => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await api.delete(`/tasks/projects/${id}/`);
     },
     onSuccess: () => {
