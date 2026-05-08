@@ -1,86 +1,67 @@
 import { useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useInternalNotesStore } from '../../store/useInternalNotesStore';
-import { NoteRoom, RoomVisibility } from '../../types/internal-notes';
-import { STUB_ROOMS } from '@/lib/stub-internal-notes';
+import { NoteRoom } from '../../types/internal-notes';
+import { internalNotesService } from '@/lib/internal-notes/internalNotesService';
 
 export const useInternalNotes = () => {
+  const queryClient = useQueryClient();
   const { 
-    rooms, 
     selectedRoomId, 
-    loading, 
-    error, 
-    setRooms, 
     setSelectedRoomId, 
-    setLoading, 
-    setError,
-    getSelectedRoom
+    getSelectedRoom,
+    setRooms
   } = useInternalNotesStore();
 
-  const getRooms = useCallback(async () => {
-    setLoading('loading');
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setRooms(STUB_ROOMS);
-      setLoading('success');
-    } catch (err) {
-      setError('Failed to fetch rooms');
-      setLoading('error');
+  // Fetch Rooms with React Query
+  const { 
+    data: rooms = [], 
+    isLoading: loadingRooms, 
+    isError: isRoomsError,
+    error: roomsError,
+    refetch: getRooms
+  } = useQuery({
+    queryKey: ['internal-notes-rooms'],
+    queryFn: async () => {
+      const response = await internalNotesService.getRooms();
+      // Sync with store for components still relying on it
+      setRooms(response.data);
+      return response.data;
     }
-  }, [setRooms, setLoading, setError]);
+  });
+
+  // Create Room Mutation
+  const createRoomMutation = useMutation({
+    mutationFn: (data: Partial<NoteRoom>) => internalNotesService.createRoom(data),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
+      return response.data;
+    }
+  });
+
+  // Delete Room Mutation
+  const deleteRoomMutation = useMutation({
+    mutationFn: (roomId: number) => internalNotesService.deleteRoom(roomId),
+    onSuccess: (_, roomId) => {
+      queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
+      if (selectedRoomId === roomId) {
+        setSelectedRoomId(null);
+      }
+    }
+  });
 
   const selectRoom = useCallback((roomId: number | null) => {
     setSelectedRoomId(roomId);
   }, [setSelectedRoomId]);
 
-  const createRoom = useCallback(async (data: Partial<NoteRoom>) => {
-    setLoading('loading');
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const newRoom: NoteRoom = {
-        id: Math.floor(Math.random() * 10000),
-        name: data.name || 'New Room',
-        visibility: data.visibility || RoomVisibility.INTERNAL,
-        created_by: 1,
-        created_by_email: 'admin@example.com',
-        project: data.project || null,
-        project_name: data.project ? 'Project Alpha' : null,
-        members: [1],
-        created_at: new Date().toISOString(),
-        is_default: false,
-      };
-      setRooms([...rooms, newRoom]);
-      setLoading('success');
-      return newRoom;
-    } catch (err) {
-      setError('Failed to create room');
-      setLoading('error');
-    }
-  }, [rooms, setRooms, setLoading, setError]);
-
-  const deleteRoom = useCallback(async (roomId: number) => {
-    setLoading('loading');
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setRooms(rooms.filter((r) => r.id !== roomId));
-      if (selectedRoomId === roomId) {
-        setSelectedRoomId(null);
-      }
-      setLoading('success');
-    } catch (err) {
-      setError('Failed to delete room');
-      setLoading('error');
-    }
-  }, [rooms, selectedRoomId, setRooms, setSelectedRoomId, setLoading, setError]);
-
   return {
     rooms,
     selectedRoom: getSelectedRoom(),
-    loading,
-    error,
+    loading: loadingRooms || createRoomMutation.isPending || deleteRoomMutation.isPending,
+    error: isRoomsError ? (roomsError as Error).message : null,
     getRooms,
     selectRoom,
-    createRoom,
-    deleteRoom
+    createRoom: (data: Partial<NoteRoom>) => createRoomMutation.mutateAsync(data),
+    deleteRoom: (roomId: number) => deleteRoomMutation.mutateAsync(roomId)
   };
 };
