@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Grid, Box, Typography, Skeleton } from '@mui/material';
+import { Grid, Box, Typography, Skeleton, Stack } from '@mui/material';
 import { Forum as ForumIcon } from '@mui/icons-material';
 import { NoteRoom, RoomVisibility } from '../../types/internal-notes';
 import RoomCard from './RoomCard';
@@ -70,7 +70,7 @@ export const STUB_ROOMS: NoteRoom[] = [
 const RoomList: React.FC<RoomListProps> = ({ rooms, loading = false, onRoomSelect }) => {
   if (loading) {
     return (
-      <Grid container spacing={3}>
+      <Stack spacing={2} sx={{ width: '100%', p: 2 }}>
         {[1, 2, 3, 4].map((i) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
             <Skeleton
@@ -80,7 +80,7 @@ const RoomList: React.FC<RoomListProps> = ({ rooms, loading = false, onRoomSelec
             />
           </Grid>
         ))}
-      </Grid>
+      </Stack>
     );
   }
 
@@ -108,13 +108,15 @@ const RoomList: React.FC<RoomListProps> = ({ rooms, loading = false, onRoomSelec
   }
 
   return (
-    <Grid container spacing={3}>
+    <Stack spacing={2} sx={{ width: '100%', p: 2 }}>
       {rooms.map((room) => (
-        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={room.id}>
-          <RoomCard room={room} onClick={onRoomSelect} />
-        </Grid>
+        <RoomCard
+          key={room.id}
+          room={room}
+          onClick={onRoomSelect}
+        />
       ))}
-    </Grid>
+    </Stack>
   );
 };
 
