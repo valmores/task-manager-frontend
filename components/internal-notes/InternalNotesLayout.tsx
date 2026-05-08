@@ -1,24 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Drawer, 
-  Fab, 
-  useTheme, 
-  useMediaQuery, 
+import {
+  Box,
+  Drawer,
+  Fab,
+  useTheme,
+  useMediaQuery,
   Typography,
   Divider,
   IconButton,
   Tooltip,
   Button
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
+import {
+  Add as AddIcon,
   Menu as MenuIcon,
-  Forum as ForumIcon 
+  Forum as ForumIcon
 } from '@mui/icons-material';
-import { useInternalNotesStore } from '@/store/useInternalNotesStore';
+import { useInternalNotes } from '@/hooks/internal-notes/useInternalNotes';
+import { useMessages } from '@/hooks/internal-notes/useMessages';
 import RoomList from './RoomList';
 import RoomHeader from './RoomHeader';
 import MessageList from './MessageList';
@@ -27,37 +28,35 @@ import RoomCreateDialog from './RoomCreateDialog';
 
 const SIDEBAR_WIDTH = 320;
 
-/**
- * InternalNotesLayout component
- * 
- * Provides a split-panel layout for the internal notes system.
- * Left: Room list (collapsible on mobile)
- * Right: Chat area (header, messages, and input form)
- */
 export const InternalNotesLayout: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  
-  const { 
-    rooms, 
-    selectedRoomId, 
-    messages, 
-    loading, 
-    setSelectedRoomId,
-    getSelectedRoom 
-  } = useInternalNotesStore();
 
-  const selectedRoom = getSelectedRoom();
+  const {
+    rooms,
+    selectedRoom,
+    loading: loadingRooms,
+    error: roomsError,
+    selectRoom,
+    createRoom
+  } = useInternalNotes();
+
+  const {
+    messages,
+    loading: loadingMessages,
+    error: messagesError,
+    createMessage
+  } = useMessages();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const handleRoomSelect = (roomId: number) => {
-    setSelectedRoomId(roomId);
+    selectRoom(roomId);
     if (isMobile) {
       setMobileOpen(false);
     }
@@ -70,11 +69,11 @@ export const InternalNotesLayout: React.FC = () => {
           Internal Notes
         </Typography>
         <Tooltip title="Create New Room">
-          <IconButton 
-            size="small" 
-            onClick={() => setDialogOpen(true)} 
-            sx={{ 
-              bgcolor: 'primary.main', 
+          <IconButton
+            size="small"
+            onClick={() => setDialogOpen(true)}
+            sx={{
+              bgcolor: 'primary.main',
               color: 'white',
               '&:hover': { bgcolor: 'primary.dark' }
             }}
@@ -85,10 +84,10 @@ export const InternalNotesLayout: React.FC = () => {
       </Box>
       <Divider />
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-        <RoomList 
-          rooms={rooms} 
-          loading={loading === 'loading' && rooms.length === 0} 
-          onRoomSelect={handleRoomSelect} 
+        <RoomList
+          rooms={rooms}
+          loading={loadingRooms}
+          onRoomSelect={handleRoomSelect}
         />
       </Box>
     </Box>
@@ -114,8 +113,8 @@ export const InternalNotesLayout: React.FC = () => {
       {/* Sidebar Component (Desktop) */}
       <Box
         component="nav"
-        sx={{ 
-          width: { sm: SIDEBAR_WIDTH }, 
+        sx={{
+          width: { sm: SIDEBAR_WIDTH },
           flexShrink: { sm: 0 },
           display: { xs: 'none', sm: 'block' },
           borderRight: '1px solid',
@@ -140,11 +139,11 @@ export const InternalNotesLayout: React.FC = () => {
       </Drawer>
 
       {/* Main Chat/Content Area */}
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
-          display: 'flex', 
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
           flexDirection: 'column',
           height: '100%',
           bgcolor: 'action.hover',
@@ -154,28 +153,32 @@ export const InternalNotesLayout: React.FC = () => {
       >
         {selectedRoom ? (
           <>
-            <RoomHeader 
-              room={selectedRoom} 
-              onBack={isMobile ? () => setSelectedRoomId(null) : undefined} 
+            <RoomHeader
+              room={selectedRoom}
+              onBack={isMobile ? () => selectRoom(null) : undefined}
             />
             <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <MessageList 
-                messages={messages} 
-                loading={loading === 'loading'} 
+              <MessageList
+                messages={messages}
+                loading={loadingMessages}
               />
-              <MessageForm 
-                roomVisibility={selectedRoom.visibility} 
-                loading={loading === 'loading'} 
+              <MessageForm
+                roomVisibility={selectedRoom.visibility}
+                loading={loadingMessages}
+                error={messagesError || undefined}
+                onSubmit={async (content) => {
+                  await createMessage(selectedRoom.id, content);
+                }}
               />
             </Box>
           </>
         ) : (
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexGrow: 1,
               textAlign: 'center',
               p: 3,
@@ -187,12 +190,12 @@ export const InternalNotesLayout: React.FC = () => {
               Select a room to start
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mt: 1, maxWidth: 400 }}>
-              Choose an internal note room from the sidebar to view discussions, 
+              Choose an internal note room from the sidebar to view discussions,
               updates, and project-specific notes.
             </Typography>
             {isMobile && (
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 onClick={handleDrawerToggle}
                 sx={{ mt: 4, borderRadius: '20px', px: 4 }}
               >
@@ -205,9 +208,9 @@ export const InternalNotesLayout: React.FC = () => {
 
       {/* Floating Action Button for mobile */}
       {isMobile && (
-        <Fab 
-          color="primary" 
-          aria-label="add" 
+        <Fab
+          color="primary"
+          aria-label="add"
           sx={{ position: 'absolute', bottom: 16, right: 16 }}
           onClick={() => setDialogOpen(true)}
         >
@@ -216,14 +219,15 @@ export const InternalNotesLayout: React.FC = () => {
       )}
 
       {/* Create Room Dialog */}
-      <RoomCreateDialog 
-        open={dialogOpen} 
-        onClose={() => setDialogOpen(false)} 
-        onSubmit={(data) => {
-          // This will be connected to the real hook in later commits
-          console.log('Room creation requested:', data);
+      <RoomCreateDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSubmit={async (data) => {
+          await createRoom(data);
           setDialogOpen(false);
         }}
+        loading={loadingRooms}
+        error={roomsError || undefined}
       />
     </Box>
   );
