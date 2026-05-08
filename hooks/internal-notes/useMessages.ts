@@ -1,95 +1,69 @@
-import { useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useInternalNotesStore } from '../../store/useInternalNotesStore';
-import { InternalNote } from '../../types/internal-notes';
-import { STUB_MESSAGES } from '@/lib/stub-internal-notes';
+import { internalNotesService } from '@/lib/internal-notes/internalNotesService';
 
 export const useMessages = () => {
-  const {
-    messages,
-    loading,
-    error,
-    setMessages,
-    setLoading,
-    setError,
+  const queryClient = useQueryClient();
+  const { 
+    selectedRoomId,
+    setMessages 
   } = useInternalNotesStore();
 
-  const getMessages = useCallback(async (roomId: number) => {
-    setLoading('loading');
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const filteredMessages = STUB_MESSAGES.filter((m) => m.room === roomId);
-      setMessages(filteredMessages);
-      setLoading('success');
-    } catch (err) {
-      setError('Failed to fetch messages');
-      setLoading('error');
-    }
-  }, [setMessages, setLoading, setError]);
+  // Fetch Messages with React Query
+  const { 
+    data: messages = [], 
+    isLoading: loadingMessages, 
+    isError: isMessagesError,
+    error: messagesError,
+    refetch: getMessages
+  } = useQuery({
+    queryKey: ['internal-notes-messages', selectedRoomId],
+    queryFn: async () => {
+      if (!selectedRoomId) return [];
+      const response = await internalNotesService.getMessages(selectedRoomId);
+      // Sync with store for components still relying on it
+      setMessages(response.data);
+      return response.data;
+    },
+    enabled: !!selectedRoomId,
+  });
 
-  const createMessage = useCallback(async (roomId: number, content: string) => {
-    setLoading('loading');
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 400));
-      const newMessage: InternalNote = {
-        id: Math.floor(Math.random() * 10000),
-        room: roomId,
-        author: 1, // Current user stub
-        author_email: 'admin@example.com',
-        content,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        is_edited: false,
-      };
-      setMessages([...messages, newMessage]);
-      setLoading('success');
-      return newMessage;
-    } catch (err) {
-      setError('Failed to send message');
-      setLoading('error');
+  // Create Message Mutation
+  const createMessageMutation = useMutation({
+    mutationFn: ({ roomId, content }: { roomId: number; content: string }) => 
+      internalNotesService.createMessage(roomId, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
     }
-  }, [messages, setMessages, setLoading, setError]);
+  });
 
-  const updateMessage = useCallback(async (messageId: number, content: string) => {
-    setLoading('loading');
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      const updatedMessages = messages.map((m) =>
-        m.id === messageId
-          ? { ...m, content, updated_at: new Date().toISOString(), is_edited: true }
-          : m
-      );
-      setMessages(updatedMessages);
-      setLoading('success');
-    } catch (err) {
-      setError('Failed to update message');
-      setLoading('error');
+  // Update Message Mutation
+  const updateMessageMutation = useMutation({
+    mutationFn: ({ messageId, content }: { messageId: number; content: string }) => 
+      internalNotesService.updateMessage(messageId, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
     }
-  }, [messages, setMessages, setLoading, setError]);
+  });
 
-  const deleteMessage = useCallback(async (messageId: number) => {
-    setLoading('loading');
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      const filteredMessages = messages.filter((m) => m.id !== messageId);
-      setMessages(filteredMessages);
-      setLoading('success');
-    } catch (err) {
-      setError('Failed to delete message');
-      setLoading('error');
+  // Delete Message Mutation
+  const deleteMessageMutation = useMutation({
+    mutationFn: (messageId: number) => internalNotesService.deleteMessage(messageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
     }
-  }, [messages, setMessages, setLoading, setError]);
+  });
 
   return {
     messages,
-    loading,
-    error,
+    loading: loadingMessages || createMessageMutation.isPending || updateMessageMutation.isPending || deleteMessageMutation.isPending,
+    error: isMessagesError ? (messagesError as Error).message : null,
     getMessages,
-    createMessage,
-    updateMessage,
-    deleteMessage,
+    createMessage: (roomId: number, content: string) => 
+      createMessageMutation.mutateAsync({ roomId, content }),
+    updateMessage: (messageId: number, content: string) => 
+      updateMessageMutation.mutateAsync({ messageId, content }),
+    deleteMessage: (messageId: number) => 
+      deleteMessageMutation.mutateAsync(messageId),
   };
 };
