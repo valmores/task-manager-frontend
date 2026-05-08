@@ -4,6 +4,7 @@ import React from 'react';
 import { Grid, Box, Typography, Skeleton, Stack } from '@mui/material';
 import { Forum as ForumIcon } from '@mui/icons-material';
 import { NoteRoom, RoomVisibility } from '../../types/internal-notes';
+import { STUB_ROOMS } from '@/lib/stub-internal-notes';
 import RoomCard from './RoomCard';
 
 interface RoomListProps {
@@ -11,61 +12,6 @@ interface RoomListProps {
   loading?: boolean;
   onRoomSelect?: (roomId: number) => void;
 }
-
-/**
- * Stub data as specified in the implementation plan.
- * This will be moved to a service or store in later commits.
- */
-export const STUB_ROOMS: NoteRoom[] = [
-  {
-    id: 1,
-    name: "General Discussion",
-    is_default: true,
-    visibility: RoomVisibility.INTERNAL,
-    created_by: 1,
-    created_by_email: "admin@example.com",
-    project: null,
-    project_name: null,
-    members: [1, 2, 3, 4, 5],
-    created_at: "2026-05-07T10:00:00Z",
-  },
-  {
-    id: 2,
-    name: "Project Alpha Notes",
-    is_default: false,
-    visibility: RoomVisibility.PROJECT_SPECIFIC,
-    created_by: 2,
-    created_by_email: "owner@example.com",
-    project: 1,
-    project_name: "Project Alpha",
-    members: [1, 2],
-    created_at: "2026-05-07T10:15:00Z",
-  },
-  {
-    id: 3,
-    name: "Leadership Team",
-    is_default: false,
-    visibility: RoomVisibility.PRIVATE,
-    created_by: 1,
-    created_by_email: "admin@example.com",
-    project: null,
-    project_name: null,
-    members: [1, 2, 3],
-    created_at: "2026-05-07T10:30:00Z",
-  },
-  {
-    id: 4,
-    name: "Admin Only System Log",
-    is_default: false,
-    visibility: RoomVisibility.ADMIN_ONLY,
-    created_by: 1,
-    created_by_email: "admin@example.com",
-    project: null,
-    project_name: null,
-    members: [1],
-    created_at: "2026-05-07T10:45:00Z",
-  }
-];
 
 const RoomList: React.FC<RoomListProps> = ({ rooms, loading = false, onRoomSelect }) => {
   if (loading) {
