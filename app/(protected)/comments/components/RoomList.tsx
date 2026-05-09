@@ -11,13 +11,17 @@ interface RoomListProps {
   loading?: boolean;
   onRoomSelect?: (roomId: number) => void;
   selectedRoomId?: number | null;
+  onRoomEdit?: (room: NoteRoom) => void;
+  onRoomDelete?: (room: NoteRoom) => void;
 }
 
 const RoomList: React.FC<RoomListProps> = ({ 
   rooms, 
   loading = false, 
   onRoomSelect,
-  selectedRoomId 
+  selectedRoomId,
+  onRoomEdit,
+  onRoomDelete
 }) => {
   if (loading) {
     return (
@@ -66,6 +70,8 @@ const RoomList: React.FC<RoomListProps> = ({
           room={room}
           onClick={onRoomSelect}
           isActive={room.id === selectedRoomId}
+          onEdit={onRoomEdit}
+          onDelete={onRoomDelete}
         />
       ))}
     </Stack>

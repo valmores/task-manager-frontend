@@ -1,7 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent, Typography, Box, Stack } from '@mui/material';
+import { 
+  Card, 
+  CardContent, 
+  Typography, 
+  Box, 
+  Stack
+} from '@mui/material';
 import { motion } from 'framer-motion';
 import {
   People as PeopleIcon,
@@ -10,14 +16,23 @@ import {
 } from '@mui/icons-material';
 import { NoteRoom } from '@/types/internal-notes';
 import VisibilityBadge from './VisibilityBadge';
+import RoomActions from './RoomActions';
 
 interface RoomCardProps {
   room: NoteRoom;
   onClick?: (roomId: number) => void;
   isActive?: boolean;
+  onEdit?: (room: NoteRoom) => void;
+  onDelete?: (room: NoteRoom) => void;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, onClick, isActive = false }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ 
+  room, 
+  onClick, 
+  isActive = false,
+  onEdit,
+  onDelete
+}) => {
   const handleClick = () => {
     if (onClick) onClick(room.id);
   };
@@ -55,7 +70,13 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick, isActive = false }) 
           position: 'relative',
         }}
       >
-        <CardContent sx={{ flexGrow: 1, p: 3 }}>
+        <RoomActions 
+          room={room} 
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+        />
+
+        <CardContent sx={{ flexGrow: 1, p: 3, pt: 4 }}>
           <Stack spacing={2}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2, maxWidth: '70%' }}>

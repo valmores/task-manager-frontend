@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import InfoIcon from '@mui/icons-material/Info';
-import { RoomVisibility } from '@/types/internal-notes';
+import { RoomVisibility, NoteRoom } from '@/types/internal-notes';
 
 import { useRoomCreateForm } from '@/hooks/internal-notes/useRoomCreateForm';
 import { VisibilitySelector } from './room-create/VisibilitySelector';
@@ -33,11 +33,11 @@ interface RoomCreateDialogProps {
   error?: string;
   canCreate?: boolean;
   projects?: Array<{ id: number; name: string }>;
+  room?: NoteRoom | null; // Added room prop for editing
 }
 
 /**
- * RoomCreateDialog component for creating new internal note rooms
- * Refactored for modularity and improved maintainability.
+ * RoomCreateDialog component for creating and editing internal note rooms
  */
 export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
   open,
@@ -47,7 +47,20 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
   error,
   canCreate = true,
   projects = [],
+  room = null,
 }) => {
+  const isEditing = !!room;
+
+  // Memoize initial data for the hook
+  const initialData = useMemo(() => {
+    if (!room) return undefined;
+    return {
+      name: room.name,
+      visibility: room.visibility,
+      project: room.project || null,
+    };
+  }, [room]);
+
   const {
     form,
     errors,
@@ -57,7 +70,7 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
     handleSubmit,
     resetForm,
     showProjectField,
-  } = useRoomCreateForm(onSubmit);
+  } = useRoomCreateForm(onSubmit, initialData);
 
   /**
    * Handle close
@@ -67,8 +80,9 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
     onClose();
   };
 
-  // Permission warning
-  if (!canCreate) {
+  // Permission warning (only relevant for creating new rooms usually, 
+  // but we'll keep it for now or adjust if edit has different permissions)
+  if (!canCreate && !isEditing) {
     return (
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>Create Room</DialogTitle>
@@ -87,7 +101,7 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New Room</DialogTitle>
+      <DialogTitle>{isEditing ? 'Edit Room' : 'Create New Room'}</DialogTitle>
 
       <DialogContent sx={{ pt: 2 }}>
         <Stack spacing={2.5}>
@@ -96,8 +110,10 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
 
           {/* Feature Information */}
           <Alert severity="info" icon={<InfoIcon />}>
-            Create a room to organize internal notes by topic or project. Choose visibility level
-            to control who can access this room.
+            {isEditing
+              ? `You are editing "${room.name}". Updates will apply immediately.`
+              : 'Create a room to organize internal notes by topic or project. Choose visibility level to control who can access this room.'
+            }
           </Alert>
 
           {/* Room Name Input */}
@@ -109,7 +125,7 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
             onChange={handleChange('name')}
             onBlur={handleBlur('name')}
             error={form.touched.name && !!errors.name}
-            helperText={form.touched.name ? errors.name : 'Give your room a descriptive name'}
+            helperText={form.touched.name ? errors.name : isEditing ? 'Update your room name' : 'Give your room a descriptive name'}
             disabled={loading}
           />
 
@@ -151,7 +167,7 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
           disabled={loading || !isValid}
           startIcon={loading && <CircularProgress size={20} />}
         >
-          {loading ? 'Creating...' : 'Create Room'}
+          {loading ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Changes' : 'Create Room')}
         </Button>
       </DialogActions>
     </Dialog>

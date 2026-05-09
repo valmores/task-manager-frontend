@@ -20,11 +20,13 @@ import {
 } from '@mui/icons-material';
 import { useInternalNotes } from '@/hooks/internal-notes/useInternalNotes';
 import { useMessages } from '@/hooks/internal-notes/useMessages';
+import { useProjects } from '@/hooks/projects/use-projects';
 import RoomList from './RoomList';
 import RoomHeader from './RoomHeader';
 import MessageList from './MessageList';
 import MessageForm from './MessageForm';
 import RoomCreateDialog from './RoomCreateDialog';
+import { NoteRoom } from '@/types/internal-notes';
 
 const SIDEBAR_WIDTH = 320;
 
@@ -34,6 +36,9 @@ export const InternalNotesLayout: React.FC = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [roomToEdit, setRoomToEdit] = useState<NoteRoom | null>(null);
+
+  const { data: projects = [] } = useProjects();
 
   const {
     rooms,
@@ -41,7 +46,9 @@ export const InternalNotesLayout: React.FC = () => {
     loading: loadingRooms,
     error: roomsError,
     selectRoom,
-    createRoom
+    createRoom,
+    updateRoom,
+    deleteRoom
   } = useInternalNotes();
 
   const {
@@ -62,6 +69,26 @@ export const InternalNotesLayout: React.FC = () => {
     }
   };
 
+  const handleRoomEdit = (room: NoteRoom) => {
+    setRoomToEdit(room);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setRoomToEdit(null);
+  };
+
+  const handleRoomDelete = async (room: NoteRoom) => {
+    if (window.confirm(`Are you sure you want to delete "${room.name}"?`)) {
+      try {
+        await deleteRoom(room.id);
+      } catch (err) {
+        console.error('Failed to delete room:', err);
+      }
+    }
+  };
+
   const sidebarContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -71,7 +98,10 @@ export const InternalNotesLayout: React.FC = () => {
         <Tooltip title="Create New Room">
           <IconButton
             size="small"
-            onClick={() => setDialogOpen(true)}
+            onClick={() => {
+              setRoomToEdit(null);
+              setDialogOpen(true);
+            }}
             sx={{
               bgcolor: 'primary.main',
               color: 'white',
@@ -89,6 +119,8 @@ export const InternalNotesLayout: React.FC = () => {
           loading={loadingRooms}
           onRoomSelect={handleRoomSelect}
           selectedRoomId={selectedRoom?.id}
+          onRoomEdit={handleRoomEdit}
+          onRoomDelete={handleRoomDelete}
         />
       </Box>
     </Box>
@@ -213,22 +245,31 @@ export const InternalNotesLayout: React.FC = () => {
           color="primary"
           aria-label="add"
           sx={{ position: 'absolute', bottom: 16, right: 16 }}
-          onClick={() => setDialogOpen(true)}
+          onClick={() => {
+            setRoomToEdit(null);
+            setDialogOpen(true);
+          }}
         >
           <AddIcon />
         </Fab>
       )}
 
-      {/* Create Room Dialog */}
+      {/* Room Dialog (Create/Edit) */}
       <RoomCreateDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={handleDialogClose}
+        room={roomToEdit}
         onSubmit={async (data) => {
-          await createRoom(data);
-          setDialogOpen(false);
+          if (roomToEdit) {
+            await updateRoom(roomToEdit.id, data);
+          } else {
+            await createRoom(data);
+          }
+          handleDialogClose();
         }}
         loading={loadingRooms}
         error={roomsError || undefined}
+        projects={projects}
       />
     </Box>
   );
