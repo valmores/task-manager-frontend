@@ -25,8 +25,8 @@ export const useInternalNotes = () => {
     queryFn: async () => {
       const response = await internalNotesService.getRooms();
       // Sync with store for components still relying on it
-      setRooms(response.data);
-      return response.data;
+      setRooms(response);
+      return response;
     }
   });
 
@@ -35,7 +35,7 @@ export const useInternalNotes = () => {
     mutationFn: (data: Partial<NoteRoom>) => internalNotesService.createRoom(data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
-      return response.data;
+      return response;
     }
   });
 

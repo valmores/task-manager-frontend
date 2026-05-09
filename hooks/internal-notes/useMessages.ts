@@ -22,8 +22,8 @@ export const useMessages = () => {
       if (!selectedRoomId) return [];
       const response = await internalNotesService.getMessages(selectedRoomId);
       // Sync with store for components still relying on it
-      setMessages(response.data);
-      return response.data;
+      setMessages(response);
+      return response;
     },
     enabled: !!selectedRoomId,
   });

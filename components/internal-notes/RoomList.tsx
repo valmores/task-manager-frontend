@@ -4,7 +4,6 @@ import React from 'react';
 import { Grid, Box, Typography, Skeleton, Stack } from '@mui/material';
 import { Forum as ForumIcon } from '@mui/icons-material';
 import { NoteRoom, RoomVisibility } from '../../types/internal-notes';
-import { STUB_ROOMS } from '@/lib/stub-internal-notes';
 import RoomCard from './RoomCard';
 
 interface RoomListProps {
