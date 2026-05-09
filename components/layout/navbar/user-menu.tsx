@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, IconButton, Avatar, Menu, MenuItem, Typography, useTheme, Divider } from '@mui/material';
+import { Box, IconButton, Avatar, Menu, MenuItem, Typography, useTheme, Divider, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -14,6 +14,7 @@ interface UserMenuProps {
 
 export const UserMenu = ({ user, onLogout }: UserMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
   const theme = useTheme();
   const router = useRouter()
 
@@ -23,6 +24,20 @@ export const UserMenu = ({ user, onLogout }: UserMenuProps) => {
     handleClose();
     //TODO: add profile route
     router.push('/profile');
+  }
+  
+  const handleLogoutClick = () => {
+    handleClose();
+    setConfirmLogoutOpen(true);
+  }
+  
+  const handleConfirmLogout = () => {
+    setConfirmLogoutOpen(false);
+    onLogout();
+  }
+  
+  const handleCancelLogout = () => {
+    setConfirmLogoutOpen(false);
   }
 
   const menuItems = [
@@ -38,10 +53,7 @@ export const UserMenu = ({ user, onLogout }: UserMenuProps) => {
     // },
     {
       label: "Logout",
-      onClick: () => {
-        handleClose();
-        onLogout();
-      },
+      onClick: handleLogoutClick,
       icon: <LogoutIcon fontSize="small" sx={{ mr: 1 }} />,
       sx: { color: "error.main", mt: 0.5 },
     },
@@ -82,6 +94,18 @@ export const UserMenu = ({ user, onLogout }: UserMenuProps) => {
           ))}
         </Box>
       </Menu>
+      <Dialog open={confirmLogoutOpen} onClose={handleCancelLogout}>
+        <DialogTitle>Confirm Logout</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to log out?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelLogout}>Cancel</Button>
+          <Button onClick={handleConfirmLogout} color="error" variant="contained">
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
