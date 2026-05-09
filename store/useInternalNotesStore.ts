@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { NoteRoom, InternalNote, LoadingState } from '../types/internal-notes';
 
 interface InternalNotesState {
@@ -28,19 +28,20 @@ export const useInternalNotesStore = create<InternalNotesState>()(
       loading: 'idle',
       error: null,
       
-      setRooms: (rooms) => set({ rooms }),
+      setRooms: (rooms) => set({ rooms: rooms || [] }),
       setSelectedRoomId: (selectedRoomId) => set({ selectedRoomId }),
-      setMessages: (messages) => set({ messages }),
+      setMessages: (messages) => set({ messages: messages || [] }),
       setLoading: (loading) => set({ loading }),
       setError: (error) => set({ error }),
       
       getSelectedRoom: () => {
         const { rooms, selectedRoomId } = get();
-        return rooms.find((r) => r.id === selectedRoomId);
+        return (rooms || []).find((r) => r.id === selectedRoomId);
       },
     }),
     {
       name: 'internal-notes-storage',
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ selectedRoomId: state.selectedRoomId }),
     }
   )

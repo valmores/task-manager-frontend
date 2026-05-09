@@ -36,11 +36,6 @@ export interface InternalNote {
   is_edited: boolean;
 }
 
-export interface APIResponse<T> {
-  data: T;
-  message?: string;
-}
-
 export interface ErrorResponse {
   error: string;
   details?: Record<string, string[]>;
