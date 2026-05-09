@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useInternalNotesStore } from '../../store/useInternalNotesStore';
-import { internalNotesService } from '@/lib/internal-notes/internalNotesService';
+import { internalNotesService } from '@/lib/services/internalNotesService';
 
 export const useMessages = () => {
   const queryClient = useQueryClient();

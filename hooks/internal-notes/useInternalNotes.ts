@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useInternalNotesStore } from '../../store/useInternalNotesStore';
 import { NoteRoom } from '../../types/internal-notes';
-import { internalNotesService } from '@/lib/internal-notes/internalNotesService';
+import { internalNotesService } from '@/lib/services/internalNotesService';
 
 export const useInternalNotes = () => {
   const queryClient = useQueryClient();

@@ -1,13 +1,10 @@
-"use client";
+'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import api from '@/lib/api';
+import { changePassword, ChangePasswordPayload } from '@/lib/services/userService';
 
 export function useChangePassword() {
-  return useMutation({
-    mutationFn: async (data: any) => {
-      const response = await api.post('/users/change-password/', data);
-      return response.data;
-    },
+  return useMutation<void, Error, ChangePasswordPayload>({
+    mutationFn: (data) => changePassword(data),
   });
 }

@@ -1,26 +1,20 @@
-"use client";
+'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/lib/api';
 import { AdminUser } from '@/types/task';
+import { getAdminUsers, createAdminUser, updateAdminUser, deactivateUser } from '@/lib/services/userService';
 
 export function useAdminUsers() {
   return useQuery<AdminUser[]>({
     queryKey: ['admin-users'],
-    queryFn: async () => {
-      const response = await api.get('/users/admin/');
-      return response.data;
-    },
+    queryFn: getAdminUsers,
   });
 }
 
 export function useAdminCreateUser() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: any) => {
-      const response = await api.post('/users/admin/', data);
-      return response.data;
-    },
+    mutationFn: (data: Partial<AdminUser>) => createAdminUser(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
@@ -30,10 +24,8 @@ export function useAdminCreateUser() {
 export function useUpdateAdminUser() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const response = await api.patch(`/users/admin/${id}/`, data);
-      return response.data;
-    },
+    mutationFn: ({ id, data }: { id: number; data: Partial<AdminUser> }) =>
+      updateAdminUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
@@ -43,10 +35,7 @@ export function useUpdateAdminUser() {
 export function useDeactivateUser() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
-      const response = await api.delete(`/users/admin/${id}/`);
-      return response.data;
-    },
+    mutationFn: (id: number) => deactivateUser(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },

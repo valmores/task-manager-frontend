@@ -19,6 +19,17 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { AdminUser } from '@/types/task';
+
+type AdminUserRole = AdminUser['role'];
+
+interface AdminUserFormData {
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: AdminUserRole;
+  password: string;
+  is_active: boolean;
+}
 import { useAdminCreateUser, useUpdateAdminUser } from '@/hooks/users/use-admin-users';
 import { Alert } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -36,7 +47,7 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
   const [error, setError] = React.useState<string | null>(null);
   const [showPassword, setShowPassword] = React.useState(false);
 
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<AdminUserFormData>({
     email: '',
     first_name: '',
     last_name: '',
@@ -193,7 +204,7 @@ export const AdminUserModal: React.FC<AdminUserModalProps> = ({ open, onClose, u
               fullWidth
               required
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value as AdminUserRole })}
             >
               <MenuItem value="user">User (Task Execution)</MenuItem>
               <MenuItem value="project_owner">Project Owner (Management)</MenuItem>
