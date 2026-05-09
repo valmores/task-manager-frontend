@@ -19,6 +19,14 @@ class InternalNotesService {
   }
 
   /**
+   * Update an existing internal note room.
+   */
+  async updateRoom(roomId: number, data: Partial<NoteRoom>): Promise<NoteRoom> {
+    const response = await api.patch<NoteRoom>(`/internal/rooms/${roomId}/update/`, data);
+    return response.data;
+  }
+
+  /**
    * Delete an internal note room.
    */
   async deleteRoom(roomId: number): Promise<void> {

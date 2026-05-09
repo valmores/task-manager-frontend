@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { RoomVisibility } from '@/types/internal-notes';
 
@@ -26,12 +24,31 @@ export const INITIAL_FORM_STATE: FormState = {
   },
 };
 
-export const useRoomCreateForm = (onSubmit?: (data: {
-  name: string;
-  visibility: RoomVisibility;
-  project?: number | null;
-}) => void | Promise<void>) => {
+export const useRoomCreateForm = (
+  onSubmit?: (data: {
+    name: string;
+    visibility: RoomVisibility;
+    project?: number | null;
+  }) => void | Promise<void>,
+  initialData?: Partial<FormState>
+) => {
   const [form, setForm] = useState<FormState>(INITIAL_FORM_STATE);
+
+  // Sync with initialData if provided (for editing)
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        name: initialData.name || '',
+        visibility: initialData.visibility || RoomVisibility.INTERNAL,
+        project: initialData.project || null,
+        touched: {
+          name: false,
+          visibility: false,
+          project: false,
+        },
+      });
+    }
+  }, [initialData]);
 
   /**
    * Validate form
@@ -94,8 +111,17 @@ export const useRoomCreateForm = (onSubmit?: (data: {
   };
 
   const resetForm = useCallback(() => {
-    setForm(INITIAL_FORM_STATE);
-  }, []);
+    setForm(initialData ? {
+      name: initialData.name || '',
+      visibility: initialData.visibility || RoomVisibility.INTERNAL,
+      project: initialData.project || null,
+      touched: {
+        name: false,
+        visibility: false,
+        project: false,
+      },
+    } : INITIAL_FORM_STATE);
+  }, [initialData]);
 
   /**
    * Handle submit
@@ -114,11 +140,14 @@ export const useRoomCreateForm = (onSubmit?: (data: {
         project: form.visibility === RoomVisibility.PROJECT_SPECIFIC ? form.project : null,
       });
 
-      // Reset form on success
-      resetForm();
+      // Only reset if we are creating, not editing? 
+      // Usually, if we stay on the same edit screen, we don't reset to empty.
+      if (!initialData) {
+        resetForm();
+      }
     } catch (err) {
-      console.error('Error creating room in hook:', err);
-      throw err; // Propagate to component if needed
+      console.error('Error creating/updating room in hook:', err);
+      throw err;
     }
   };
 
@@ -131,5 +160,6 @@ export const useRoomCreateForm = (onSubmit?: (data: {
     handleSubmit,
     resetForm,
     showProjectField: form.visibility === RoomVisibility.PROJECT_SPECIFIC,
+    setForm,
   };
 };

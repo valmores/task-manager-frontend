@@ -39,6 +39,15 @@ export const useInternalNotes = () => {
     }
   });
 
+  // Update Room Mutation
+  const updateRoomMutation = useMutation({
+    mutationFn: ({ roomId, data }: { roomId: number; data: Partial<NoteRoom> }) => 
+      internalNotesService.updateRoom(roomId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
+    }
+  });
+
   // Delete Room Mutation
   const deleteRoomMutation = useMutation({
     mutationFn: (roomId: number) => internalNotesService.deleteRoom(roomId),
@@ -57,11 +66,12 @@ export const useInternalNotes = () => {
   return {
     rooms,
     selectedRoom: getSelectedRoom(),
-    loading: loadingRooms || createRoomMutation.isPending || deleteRoomMutation.isPending,
+    loading: loadingRooms || createRoomMutation.isPending || updateRoomMutation.isPending || deleteRoomMutation.isPending,
     error: isRoomsError ? (roomsError as Error).message : null,
     getRooms,
     selectRoom,
     createRoom: (data: Partial<NoteRoom>) => createRoomMutation.mutateAsync(data),
+    updateRoom: (roomId: number, data: Partial<NoteRoom>) => updateRoomMutation.mutateAsync({ roomId, data }),
     deleteRoom: (roomId: number) => deleteRoomMutation.mutateAsync(roomId)
   };
 };
