@@ -1,5 +1,5 @@
-import api from '../api';
-import { NoteRoom, InternalNote } from '../../types/internal-notes';
+import api from '@/lib/api';
+import { NoteRoom, InternalNote } from '@/types/internal-notes';
 
 class InternalNotesService {
   /**
