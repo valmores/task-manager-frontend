@@ -1,12 +1,12 @@
 import React from 'react';
 import { Chip, Tooltip } from '@mui/material';
-import { 
+import {
   Lock as LockIcon,
   Public as GlobeIcon,
   Folder as FolderIcon,
   People as PeopleIcon
 } from '@mui/icons-material';
-import { RoomVisibility } from '../../types/internal-notes';
+import { RoomVisibility } from '@/types/internal-notes';
 
 interface VisibilityBadgeProps {
   visibility: RoomVisibility;
@@ -55,7 +55,7 @@ const VisibilityBadge: React.FC<VisibilityBadgeProps> = ({ visibility, size = 's
         size={size}
         variant="outlined"
         className={className}
-        sx={{ 
+        sx={{
           fontWeight: 600,
           borderRadius: '6px',
           '& .MuiChip-icon': {

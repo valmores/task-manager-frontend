@@ -7,7 +7,7 @@ import {
   People as PeopleIcon,
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
-import { NoteRoom } from '../../types/internal-notes';
+import { NoteRoom } from '@/types/internal-notes';
 import VisibilityBadge from './VisibilityBadge';
 
 interface RoomHeaderProps {

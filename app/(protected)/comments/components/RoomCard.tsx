@@ -8,7 +8,7 @@ import {
   CalendarToday as CalendarIcon,
   Email as EmailIcon
 } from '@mui/icons-material';
-import { NoteRoom } from '../../types/internal-notes';
+import { NoteRoom } from '@/types/internal-notes';
 import VisibilityBadge from './VisibilityBadge';
 
 interface RoomCardProps {
