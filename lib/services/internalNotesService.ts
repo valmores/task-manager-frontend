@@ -37,7 +37,10 @@ class InternalNotesService {
    * Post a new message to a room.
    */
   async createMessage(roomId: number, content: string): Promise<InternalNote> {
-    const response = await api.post<InternalNote>(`/internal/rooms/${roomId}/messages/`, { content });
+    const response = await api.post<InternalNote>(`/internal/rooms/${roomId}/messages/`, { 
+      content,
+      room: roomId 
+    });
     return response.data;
   }
 
