@@ -88,6 +88,7 @@ export const InternalNotesLayout: React.FC = () => {
           rooms={rooms}
           loading={loadingRooms}
           onRoomSelect={handleRoomSelect}
+          selectedRoomId={selectedRoom?.id}
         />
       </Box>
     </Box>

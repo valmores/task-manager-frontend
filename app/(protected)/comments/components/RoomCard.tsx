@@ -14,9 +14,10 @@ import VisibilityBadge from './VisibilityBadge';
 interface RoomCardProps {
   room: NoteRoom;
   onClick?: (roomId: number) => void;
+  isActive?: boolean;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room, onClick, isActive = false }) => {
   const handleClick = () => {
     if (onClick) onClick(room.id);
   };
@@ -43,13 +44,15 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          transition: 'box-shadow 0.3s ease',
+          transition: 'all 0.3s ease',
           '&:hover': {
             boxShadow: (theme) => theme.shadows[8],
           },
           borderRadius: '12px',
-          border: '1px solid',
-          borderColor: 'divider',
+          border: '2px solid',
+          borderColor: isActive ? 'primary.main' : 'divider',
+          bgcolor: isActive ? 'action.selected' : 'background.paper',
+          position: 'relative',
         }}
       >
         <CardContent sx={{ flexGrow: 1, p: 3 }}>
