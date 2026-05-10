@@ -6,6 +6,7 @@ export interface FormState {
   name: string;
   visibility: RoomVisibility;
   project: number | null;
+  members: number[];
   touched: {
     name: boolean;
     visibility: boolean;
@@ -17,6 +18,7 @@ export const INITIAL_FORM_STATE: FormState = {
   name: '',
   visibility: RoomVisibility.INTERNAL,
   project: null,
+  members: [],
   touched: {
     name: false,
     visibility: false,
@@ -41,6 +43,7 @@ export const useRoomCreateForm = (
         name: initialData.name || '',
         visibility: initialData.visibility || RoomVisibility.INTERNAL,
         project: initialData.project || null,
+        members: initialData.members || [],
         touched: {
           name: false,
           visibility: false,
@@ -115,6 +118,7 @@ export const useRoomCreateForm = (
       name: initialData.name || '',
       visibility: initialData.visibility || RoomVisibility.INTERNAL,
       project: initialData.project || null,
+      members: initialData.members || [],
       touched: {
         name: false,
         visibility: false,
@@ -138,6 +142,8 @@ export const useRoomCreateForm = (
         name: form.name.trim(),
         visibility: form.visibility,
         project: form.visibility === RoomVisibility.PROJECT_SPECIFIC ? form.project : null,
+        // Only send members for private rooms
+        members: form.visibility === RoomVisibility.PRIVATE ? form.members : [],
       });
 
       // Only reset if we are creating, not editing? 
