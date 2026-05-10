@@ -31,6 +31,7 @@ export const useRoomCreateForm = (
     name: string;
     visibility: RoomVisibility;
     project?: number | null;
+    members?: number[];
   }) => void | Promise<void>,
   initialData?: Partial<FormState>
 ) => {
