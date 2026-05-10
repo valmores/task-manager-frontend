@@ -24,6 +24,8 @@ interface RoomCardProps {
   isActive?: boolean;
   onEdit?: (room: NoteRoom) => void;
   onDelete?: (room: NoteRoom) => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ 
@@ -31,7 +33,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
   onClick, 
   isActive = false,
   onEdit,
-  onDelete
+  onDelete,
+  canEdit = false,
+  canDelete = false
 }) => {
   const handleClick = () => {
     if (onClick) onClick(room.id);
@@ -74,6 +78,8 @@ const RoomCard: React.FC<RoomCardProps> = ({
           room={room} 
           onEdit={onEdit} 
           onDelete={onDelete} 
+          canEdit={canEdit}
+          canDelete={canDelete}
         />
 
         <CardContent sx={{ flexGrow: 1, p: 3, pt: 4 }}>

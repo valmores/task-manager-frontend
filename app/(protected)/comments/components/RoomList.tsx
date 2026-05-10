@@ -4,10 +4,12 @@ import React from 'react';
 import { Grid, Box, Typography, Skeleton, Stack } from '@mui/material';
 import { Forum as ForumIcon } from '@mui/icons-material';
 import { NoteRoom, RoomVisibility } from '@/types/internal-notes';
+import { User } from '@/store/useAuthStore';
 import RoomCard from './RoomCard';
 
 interface RoomListProps {
   rooms: NoteRoom[];
+  currentUser: User | null;
   loading?: boolean;
   onRoomSelect?: (roomId: number) => void;
   selectedRoomId?: number | null;
@@ -17,6 +19,7 @@ interface RoomListProps {
 
 const RoomList: React.FC<RoomListProps> = ({ 
   rooms, 
+  currentUser,
   loading = false, 
   onRoomSelect,
   selectedRoomId,
@@ -64,16 +67,26 @@ const RoomList: React.FC<RoomListProps> = ({
 
   return (
     <Stack spacing={2} sx={{ width: '100%', p: 2 }}>
-      {rooms.map((room) => (
-        <RoomCard
-          key={room.id}
-          room={room}
-          onClick={onRoomSelect}
-          isActive={room.id === selectedRoomId}
-          onEdit={onRoomEdit}
-          onDelete={onRoomDelete}
-        />
-      ))}
+      {rooms.map((room) => {
+        const isAdmin = currentUser?.role === 'admin';
+        const isCreator = currentUser?.id === room.created_by;
+        
+        const canEdit = isAdmin || isCreator;
+        const canDelete = isAdmin || (isCreator && !room.is_default);
+
+        return (
+          <RoomCard
+            key={room.id}
+            room={room}
+            onClick={onRoomSelect}
+            isActive={room.id === selectedRoomId}
+            onEdit={onRoomEdit}
+            onDelete={onRoomDelete}
+            canEdit={canEdit}
+            canDelete={canDelete}
+          />
+        );
+      })}
     </Stack>
   );
 };

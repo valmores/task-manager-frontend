@@ -139,6 +139,7 @@ export const InternalNotesLayout: React.FC = () => {
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
         <RoomList
           rooms={rooms}
+          currentUser={currentUser}
           loading={loadingRooms}
           onRoomSelect={handleRoomSelect}
           selectedRoomId={selectedRoom?.id}
