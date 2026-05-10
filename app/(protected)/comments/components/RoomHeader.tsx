@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, IconButton, Stack, Divider } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, IconButton, Stack, Divider, Tooltip } from '@mui/material';
 import {
   Settings as SettingsIcon,
   People as PeopleIcon,
@@ -13,9 +13,11 @@ import VisibilityBadge from './VisibilityBadge';
 interface RoomHeaderProps {
   room: NoteRoom;
   onBack?: () => void;
+  onManageMembers?: () => void;
+  canManageMembers?: boolean;
 }
 
-const RoomHeader: React.FC<RoomHeaderProps> = ({ room, onBack }) => {
+const RoomHeader: React.FC<RoomHeaderProps> = ({ room, onBack, onManageMembers, canManageMembers = false }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(undefined, {
@@ -101,9 +103,25 @@ const RoomHeader: React.FC<RoomHeaderProps> = ({ room, onBack }) => {
           </Box>
         </Stack>
 
-        <IconButton disabled title="Room settings (Coming soon)">
-          <SettingsIcon />
-        </IconButton>
+        {canManageMembers ? (
+          <Tooltip title="Manage Members">
+            <IconButton
+              onClick={onManageMembers}
+              color="primary"
+              aria-label="manage-members"
+            >
+              <SettingsIcon />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Tooltip title="Member management is only available for Private rooms">
+            <span>
+              <IconButton disabled aria-label="manage-members-disabled">
+                <SettingsIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
       </Toolbar>
     </AppBar>
   );

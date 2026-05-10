@@ -20,6 +20,7 @@ import { useRoomCreateForm } from '@/hooks/internal-notes/useRoomCreateForm';
 import { VisibilitySelector } from './room-create/VisibilitySelector';
 import { ProjectSelector } from './room-create/ProjectSelector';
 import { VisibilityInfo } from './room-create/VisibilityInfo';
+import { MemberSelector } from './room-create/MemberSelector';
 
 interface RoomCreateDialogProps {
   open: boolean;
@@ -28,11 +29,13 @@ interface RoomCreateDialogProps {
     name: string;
     visibility: RoomVisibility;
     project?: number | null;
+    members?: number[];
   }) => void | Promise<void>;
   loading?: boolean;
   error?: string;
   canCreate?: boolean;
   projects?: Array<{ id: number; name: string }>;
+  users?: Array<{ id: number; email: string; first_name: string; last_name: string; role: string }>;
   room?: NoteRoom | null; // Added room prop for editing
 }
 
@@ -47,6 +50,7 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
   error,
   canCreate = true,
   projects = [],
+  users = [],
   room = null,
 }) => {
   const isEditing = !!room;
@@ -58,6 +62,7 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
       name: room.name,
       visibility: room.visibility,
       project: room.project || null,
+      members: room.members || [],
     };
   }, [room]);
 
@@ -70,7 +75,10 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
     handleSubmit,
     resetForm,
     showProjectField,
+    setForm,
   } = useRoomCreateForm(onSubmit, initialData);
+
+  const showMemberField = true; // Show for all room types now
 
   /**
    * Handle close
@@ -148,6 +156,18 @@ export const RoomCreateDialog: React.FC<RoomCreateDialogProps> = ({
               onBlur={handleBlur('project')}
               error={errors.project}
               touched={form.touched.project}
+              disabled={loading}
+            />
+          )}
+
+          {/* Member Selection (Private rooms only) */}
+          {showMemberField && (
+            <MemberSelector
+              value={form.members}
+              users={users}
+              onChange={(newIds) =>
+                setForm((prev) => ({ ...prev, members: newIds }))
+              }
               disabled={loading}
             />
           )}

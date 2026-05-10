@@ -20,12 +20,16 @@ import {
 } from '@mui/icons-material';
 import { useInternalNotes } from '@/hooks/internal-notes/useInternalNotes';
 import { useMessages } from '@/hooks/internal-notes/useMessages';
+import { useRoomMembers } from '@/hooks/internal-notes/useRoomMembers';
 import { useProjects } from '@/hooks/projects/use-projects';
+import { useAllUsers } from '@/hooks/users/useAllUsers';
+import { useAuthStore } from '@/store/useAuthStore';
 import RoomList from './RoomList';
 import RoomHeader from './RoomHeader';
 import MessageList from './MessageList';
 import MessageForm from './MessageForm';
 import RoomCreateDialog from './RoomCreateDialog';
+import ManageMembersDialog from './ManageMembersDialog';
 import { NoteRoom } from '@/types/internal-notes';
 
 const SIDEBAR_WIDTH = 320;
@@ -37,8 +41,11 @@ export const InternalNotesLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [roomToEdit, setRoomToEdit] = useState<NoteRoom | null>(null);
+  const [manageMembersOpen, setManageMembersOpen] = useState(false);
 
   const { data: projects = [] } = useProjects();
+  const { users: allUsers } = useAllUsers();
+  const currentUser = useAuthStore((s) => s.user);
 
   const {
     rooms,
@@ -57,6 +64,22 @@ export const InternalNotesLayout: React.FC = () => {
     error: messagesError,
     createMessage
   } = useMessages();
+
+  const {
+    updateMembers,
+    isLoading: isUpdatingMembers,
+    error: membersError,
+  } = useRoomMembers();
+
+  // User can manage members if they are admin OR the creator of the selected room
+  const canManageMembers = !!(
+    selectedRoom &&
+    currentUser &&
+    (
+      currentUser.role === 'admin' ||
+      selectedRoom.created_by === currentUser.id
+    )
+  );
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -189,6 +212,8 @@ export const InternalNotesLayout: React.FC = () => {
             <RoomHeader
               room={selectedRoom}
               onBack={isMobile ? () => selectRoom(null) : undefined}
+              canManageMembers={canManageMembers}
+              onManageMembers={() => setManageMembersOpen(true)}
             />
             <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               <MessageList
@@ -270,7 +295,24 @@ export const InternalNotesLayout: React.FC = () => {
         loading={loadingRooms}
         error={roomsError || undefined}
         projects={projects}
+        users={allUsers}
       />
+
+      {/* Manage Members Dialog (post-creation, private rooms) */}
+      {selectedRoom && (
+        <ManageMembersDialog
+          open={manageMembersOpen}
+          onClose={() => setManageMembersOpen(false)}
+          room={selectedRoom}
+          allUsers={allUsers}
+          lockedIds={selectedRoom.created_by ? [selectedRoom.created_by] : []}
+          onUpdateMembers={async (payload) => {
+            await updateMembers(selectedRoom.id, payload);
+          }}
+          isLoading={isUpdatingMembers}
+          error={membersError}
+        />
+      )}
     </Box>
   );
 };
