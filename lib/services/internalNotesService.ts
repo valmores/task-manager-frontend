@@ -61,6 +61,18 @@ class InternalNotesService {
   }
 
   /**
+   * Update room members (add/remove). Private rooms only.
+   * Admin or room creator can call this.
+   */
+  async updateMembers(
+    roomId: number,
+    payload: { add?: number[]; remove?: number[] }
+  ): Promise<NoteRoom> {
+    const response = await api.patch<NoteRoom>(`/internal/rooms/${roomId}/members/`, payload);
+    return response.data;
+  }
+
+  /**
    * Delete a message.
    */
   async deleteMessage(messageId: number): Promise<void> {

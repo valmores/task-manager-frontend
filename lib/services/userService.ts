@@ -16,6 +16,15 @@ export async function getUsers(): Promise<UserOption[]> {
 }
 
 /**
+ * Fetch ALL active users across all roles (for room member selection).
+ * Admin and Project Owner only.
+ */
+export async function getAllUsers(): Promise<UserOption[]> {
+  const response = await api.get<UserOption[]>('/users/all/');
+  return response.data;
+}
+
+/**
  * Fetch all users for admin management.
  */
 export async function getAdminUsers(): Promise<AdminUser[]> {

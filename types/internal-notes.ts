@@ -10,6 +10,7 @@ export interface UserInfo {
   email: string;
   first_name?: string;
   last_name?: string;
+  role?: string;
 }
 
 export interface NoteRoom {
@@ -21,6 +22,7 @@ export interface NoteRoom {
   project: number | null;
   project_name?: string | null;
   members: number[];
+  members_detail: UserInfo[];
   created_at: string;
   is_default: boolean;
 }
