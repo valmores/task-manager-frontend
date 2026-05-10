@@ -61,6 +61,7 @@ export const InternalNotesLayout: React.FC = () => {
   const {
     messages,
     loading: loadingMessages,
+    isSubmitting: isSubmittingMessage,
     error: messagesError,
     createMessage
   } = useMessages();
@@ -223,7 +224,7 @@ export const InternalNotesLayout: React.FC = () => {
               />
               <MessageForm
                 roomVisibility={selectedRoom.visibility}
-                loading={loadingMessages}
+                loading={isSubmittingMessage}
                 isAdmin={currentUser?.role === 'admin'}
                 error={messagesError || undefined}
                 onSubmit={async (content) => {
