@@ -21,6 +21,7 @@ interface MessageFormProps {
   disabled?: boolean;
   error?: string;
   canPost?: boolean;
+  isAdmin?: boolean;
   roomVisibility?: 'admin_only' | 'internal' | 'project_specific' | 'private';
 }
 
@@ -35,6 +36,7 @@ export const MessageForm: React.FC<MessageFormProps> = ({
   disabled = false,
   error,
   canPost = true,
+  isAdmin = false,
   roomVisibility = 'internal',
 }) => {
   const [content, setContent] = useState('');
@@ -42,8 +44,14 @@ export const MessageForm: React.FC<MessageFormProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  // Form is disabled if explicitly disabled, loading, or user cannot post.
+  // If room is admin_only, non-admins are disabled.
   const isFormDisabled =
-    disabled || loading || !canPost || roomVisibility === 'admin_only';
+    disabled || 
+    loading || 
+    !canPost || 
+    (roomVisibility === 'admin_only' && !isAdmin);
+
   const isSubmitDisabled =
     !content.trim() || loading || isFormDisabled;
   const characterCount = content.length;
@@ -93,8 +101,8 @@ export const MessageForm: React.FC<MessageFormProps> = ({
     );
   }
 
-  // Admin only warning
-  if (roomVisibility === 'admin_only') {
+  // Admin only warning - Only show to non-admins
+  if (roomVisibility === 'admin_only' && !isAdmin) {
     return (
       <Box sx={{ p: 2 }}>
         <Alert severity="info" icon={<LockIcon />}>

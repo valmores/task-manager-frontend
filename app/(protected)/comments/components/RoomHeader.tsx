@@ -114,7 +114,7 @@ const RoomHeader: React.FC<RoomHeaderProps> = ({ room, onBack, onManageMembers, 
             </IconButton>
           </Tooltip>
         ) : (
-          <Tooltip title="Member management is only available for Private rooms">
+          <Tooltip title="Only the room creator or an administrator can manage members">
             <span>
               <IconButton disabled aria-label="manage-members-disabled">
                 <SettingsIcon />

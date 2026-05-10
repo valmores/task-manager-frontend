@@ -223,6 +223,7 @@ export const InternalNotesLayout: React.FC = () => {
               <MessageForm
                 roomVisibility={selectedRoom.visibility}
                 loading={loadingMessages}
+                isAdmin={currentUser?.role === 'admin'}
                 error={messagesError || undefined}
                 onSubmit={async (content) => {
                   await createMessage(selectedRoom.id, content);
