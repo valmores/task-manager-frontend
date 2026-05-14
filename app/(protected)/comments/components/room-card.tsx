@@ -84,14 +84,27 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
         <CardContent sx={{ flexGrow: 1, p: 3, pt: 4 }}>
           <Stack spacing={2}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2, maxWidth: '70%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+              <Typography 
+                variant="h6" 
+                component="div" 
+                sx={{ 
+                  fontWeight: 700, 
+                  lineHeight: 1.2, 
+                  flexGrow: 1,
+                  minWidth: 0, // Allow title to truncate if very long
+                  wordBreak: 'break-word',
+                  pr: 3
+                }}
+              >
                 {room.name}
               </Typography>
-              <VisibilityBadge visibility={room.visibility} />
             </Box>
 
-            <Stack spacing={1}>
+            <Stack spacing={1.5}>
+              <Box sx={{ mb: 0.5 }}>
+                <VisibilityBadge visibility={room.visibility} />
+              </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }} color="text.secondary">
                 <PeopleIcon sx={{ fontSize: '0.9rem', mr: 1 }} />
                 <Typography variant="body2">
@@ -101,7 +114,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
               <Box sx={{ display: 'flex', alignItems: 'center' }} color="text.secondary">
                 <EmailIcon sx={{ fontSize: '0.9rem', mr: 1 }} />
-                <Typography variant="body2" noWrap sx={{ maxWidth: '200px' }}>
+                <Typography variant="body2" noWrap sx={{ maxWidth: '280px' }}>
                   {room.created_by_email || 'Unknown Creator'}
                 </Typography>
               </Box>

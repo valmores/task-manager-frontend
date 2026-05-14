@@ -47,9 +47,9 @@ export const MessageForm: React.FC<MessageFormProps> = ({
   // Form is disabled if explicitly disabled, loading, or user cannot post.
   // If room is admin_only, non-admins are disabled.
   const isFormDisabled =
-    disabled || 
-    loading || 
-    !canPost || 
+    disabled ||
+    loading ||
+    !canPost ||
     (roomVisibility === 'admin_only' && !isAdmin);
 
   const isSubmitDisabled =
@@ -135,7 +135,7 @@ export const MessageForm: React.FC<MessageFormProps> = ({
         fullWidth
         multiline
         rows={4}
-        placeholder="Write an internal note... (max 5000 characters)"
+        placeholder="Write an internal note..."
         value={content}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -205,9 +205,6 @@ export const MessageForm: React.FC<MessageFormProps> = ({
             color: 'text.secondary',
           }}
         >
-          {content.trim().length === 0
-            ? 'Please write a message to send'
-            : 'Press Send to post your message'}
         </Typography>
       )}
     </Box>

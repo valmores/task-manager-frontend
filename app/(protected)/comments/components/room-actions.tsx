@@ -85,7 +85,7 @@ export const RoomActions: React.FC<RoomActionsProps> = ({
         onClick={handleMenuClick}
         sx={{
           position: 'absolute',
-          top: 8,
+          top: 12,
           right: 8,
           zIndex: 1,
           color: 'text.secondary',
