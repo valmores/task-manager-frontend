@@ -27,6 +27,7 @@ export default function UserInfo({ user, onChange, onSave }: Props) {
                     <TextField
                         label="First Name"
                         name="firstName"
+                        disabled={true}
                         value={user.firstName}
                         onChange={onChange}
                         fullWidth
@@ -35,6 +36,7 @@ export default function UserInfo({ user, onChange, onSave }: Props) {
                     <TextField
                         label="Last Name"
                         name="lastName"
+                        disabled={true}
                         value={user.lastName}
                         onChange={onChange}
                         fullWidth

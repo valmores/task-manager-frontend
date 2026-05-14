@@ -1,6 +1,6 @@
 export const getStatusColor = (status: string) => {
   switch (status) {
-    case 'todo': return 'default';
+    case 'todo': return 'info';
     case 'in_progress': return 'primary';
     case 'on_hold': return 'warning';
     case 'done': return 'success';

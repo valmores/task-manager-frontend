@@ -21,8 +21,8 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
 
   // 1. Data for Pie Chart (Status Distribution)
   const statusData = [
-    { id: 0, value: tasks.filter(t => t.status === 'todo').length, label: 'To Do', color: theme.palette.grey[500] },
-    { id: 1, value: tasks.filter(t => t.status === 'in_progress').length, label: 'In Progress', color: theme.palette.info.main },
+    { id: 0, value: tasks.filter(t => t.status === 'todo').length, label: 'To Do', color: theme.palette.info.main },
+    { id: 1, value: tasks.filter(t => t.status === 'in_progress').length, label: 'In Progress', color: theme.palette.primary.main },
     { id: 2, value: tasks.filter(t => t.status === 'on_hold').length, label: 'On Hold', color: theme.palette.warning.main },
     { id: 3, value: tasks.filter(t => t.status === 'done').length, label: 'Completed', color: theme.palette.success.main },
   ].filter(item => item.value > 0);

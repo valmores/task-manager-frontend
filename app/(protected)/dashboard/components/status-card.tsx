@@ -5,7 +5,8 @@ import {
   Paper,
   Typography,
   Box,
-  useTheme
+  useTheme,
+  alpha
 } from '@mui/material';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import SyncIcon from '@mui/icons-material/Sync';
@@ -20,41 +21,41 @@ interface TaskStatusCardProps {
   children?: React.ReactNode;
 }
 
-const getStatusConfig = (status: string) => {
+const getStatusConfig = (status: string, theme: any) => {
   switch (status) {
     case 'todo':
       return {
-        color: '#3b82f6', // blue-500
-        bgColor: 'rgba(59, 130, 246, 0.08)',
-        borderColor: 'rgba(59, 130, 246, 0.2)',
+        color: theme.palette.info.main,
+        bgColor: alpha(theme.palette.info.main, 0.08),
+        borderColor: alpha(theme.palette.info.main, 0.2),
         icon: <ListAltIcon sx={{ fontSize: 28 }} />
       };
     case 'in_progress':
       return {
-        color: '#f59e0b', // amber-500
-        bgColor: 'rgba(245, 158, 11, 0.08)',
-        borderColor: 'rgba(245, 158, 11, 0.2)',
+        color: theme.palette.primary.main,
+        bgColor: alpha(theme.palette.primary.main, 0.08),
+        borderColor: alpha(theme.palette.primary.main, 0.2),
         icon: <SyncIcon sx={{ fontSize: 28 }} />
       };
     case 'done':
       return {
-        color: '#10b981', // emerald-500
-        bgColor: 'rgba(16, 185, 129, 0.08)',
-        borderColor: 'rgba(16, 185, 129, 0.2)',
+        color: theme.palette.success.main,
+        bgColor: alpha(theme.palette.success.main, 0.08),
+        borderColor: alpha(theme.palette.success.main, 0.2),
         icon: <CheckCircleIcon sx={{ fontSize: 28 }} />
       };
     case 'on_hold':
       return {
-        color: '#6366f1', // indigo-500
-        bgColor: 'rgba(99, 102, 241, 0.08)',
-        borderColor: 'rgba(99, 102, 241, 0.2)',
+        color: theme.palette.warning.main,
+        bgColor: alpha(theme.palette.warning.main, 0.08),
+        borderColor: alpha(theme.palette.warning.main, 0.2),
         icon: <PendingIcon sx={{ fontSize: 28 }} />
       };
     default:
       return {
-        color: '#6b7280', // gray-500
-        bgColor: 'rgba(107, 114, 128, 0.08)',
-        borderColor: 'rgba(107, 114, 128, 0.2)',
+        color: theme.palette.grey[500],
+        bgColor: alpha(theme.palette.grey[500], 0.08),
+        borderColor: alpha(theme.palette.grey[500], 0.2),
         icon: <ListAltIcon sx={{ fontSize: 28 }} />
       };
   }
@@ -62,7 +63,7 @@ const getStatusConfig = (status: string) => {
 
 export function TaskStatusCard({ title, description, status, count = 0, children }: TaskStatusCardProps) {
   const theme = useTheme();
-  const config = getStatusConfig(status);
+  const config = getStatusConfig(status, theme);
 
   return (
     <Paper
@@ -92,7 +93,7 @@ export function TaskStatusCard({ title, description, status, count = 0, children
         }
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
         <Box
           className="status-icon"
           sx={{
@@ -108,14 +109,13 @@ export function TaskStatusCard({ title, description, status, count = 0, children
         >
           {config.icon}
         </Box>
+        <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: -0.5 }}>
+          {title}
+        </Typography>
       </Box>
-
-      <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, color: 'text.primary', letterSpacing: -0.5 }}>
-        {title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+      {/* <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
         {description}
-      </Typography>
+      </Typography> */}
 
       <Box
         sx={{
