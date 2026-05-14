@@ -52,7 +52,7 @@ export default function UserInfo({ user, onChange, onSave }: Props) {
                     fullWidth
                 />
 
-                <Button variant="contained" onClick={onSave}>
+                <Button variant="contained" disabled={true} onClick={onSave}>
                     Save Changes
                 </Button>
             </Stack>
