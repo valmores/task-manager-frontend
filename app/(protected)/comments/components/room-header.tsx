@@ -8,7 +8,7 @@ import {
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import { NoteRoom } from '@/types/internal-notes';
-import VisibilityBadge from './VisibilityBadge';
+import VisibilityBadge from './visibility-badge';
 
 interface RoomHeaderProps {
   room: NoteRoom;

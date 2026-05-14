@@ -2,9 +2,9 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 import { AxiosError } from 'axios';
-import { login, register } from '@/lib/services/authService';
+import { login, register } from '@/lib/services/auth-service';
 
 export function useLogin() {
   const router = useRouter();

@@ -2,8 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { UserOption } from '@/types/task';
-import { useAuthStore } from '@/store/useAuthStore';
-import { getUsers } from '@/lib/services/userService';
+import { useAuthStore } from '@/store/use-auth-store';
+import { getUsers } from '@/lib/services/user-service';
 
 export function useUsers() {
   const { user } = useAuthStore();

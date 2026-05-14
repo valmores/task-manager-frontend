@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Box } from '@mui/material';
-import { InternalNotesLayout } from './components/InternalNotesLayout';
+import { InternalNotesLayout } from './components/internal-notes-layout';
 
 
 export default function InternalNotesPage() {

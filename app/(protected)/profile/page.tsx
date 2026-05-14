@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Stack, Divider, Alert, CircularProgress } from "@mui/material";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/store/use-auth-store";
 import { useChangePassword } from "@/hooks/users/use-change-password";
 
 import UserInfo from "./components/user-info";

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useInternalNotesStore } from '../../store/useInternalNotesStore';
-import { internalNotesService } from '@/lib/services/internalNotesService';
+import { useInternalNotesStore } from '../../store/use-internal-notes-store';
+import { getMessages, createMessage, updateMessage, deleteMessage } from '@/lib/services/internal-notes-service';
 import { InternalNote } from '@/types/internal-notes';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 
 export const useMessages = () => {
   const queryClient = useQueryClient();
@@ -15,17 +15,17 @@ export const useMessages = () => {
     isLoading: loadingMessages,
     isError: isMessagesError,
     error: messagesError,
-    refetch: getMessages,
+    refetch: refetchMessages,
   } = useQuery({
     queryKey: ['internal-notes-messages', selectedRoomId],
-    queryFn: () => internalNotesService.getMessages(selectedRoomId!),
+    queryFn: () => getMessages(selectedRoomId!),
     enabled: !!selectedRoomId,
   });
 
   // Create Message Mutation with Optimistic Updates
   const createMessageMutation = useMutation({
     mutationFn: ({ roomId, content }: { roomId: number; content: string }) =>
-      internalNotesService.createMessage(roomId, content),
+      createMessage(roomId, content),
 
     // Cancel any outgoing refetches so they don't overwrite our optimistic update
     onMutate: async (newMessage) => {
@@ -76,7 +76,7 @@ export const useMessages = () => {
   // Update Message Mutation
   const updateMessageMutation = useMutation({
     mutationFn: ({ messageId, content }: { messageId: number; content: string }) =>
-      internalNotesService.updateMessage(messageId, content),
+      updateMessage(messageId, content),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
     },
@@ -84,7 +84,7 @@ export const useMessages = () => {
 
   // Delete Message Mutation
   const deleteMessageMutation = useMutation({
-    mutationFn: (messageId: number) => internalNotesService.deleteMessage(messageId),
+    mutationFn: (messageId: number) => deleteMessage(messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
     },
@@ -95,7 +95,7 @@ export const useMessages = () => {
     loading: loadingMessages,
     isSubmitting: createMessageMutation.isPending,
     error: isMessagesError ? (messagesError as Error).message : null,
-    getMessages,
+    getMessages: refetchMessages,
     createMessage: (roomId: number, content: string) =>
       createMessageMutation.mutateAsync({ roomId, content }),
     updateMessage: (messageId: number, content: string) =>

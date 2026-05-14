@@ -9,7 +9,7 @@ import {
   Grid,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 import { TaskStatusCard } from './components/status-card';
 import { TaskFormModal } from '../tasks/components/task-form-modal';
 import { useTasks } from '@/hooks/tasks/use-tasks';

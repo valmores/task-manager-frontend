@@ -10,7 +10,7 @@ import {
   Alert,
   Typography,
 } from '@mui/material';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 import { useTasks } from '@/hooks/tasks/use-tasks';
 import { useProjects } from '@/hooks/projects/use-projects';
 import { Task } from '@/types/task';
@@ -33,7 +33,7 @@ export default function TasksPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [projectFilter, setProjectFilter] = useState('all');
-  
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -97,13 +97,13 @@ export default function TasksPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <TaskListHeader 
-        isAdminOrOwner={isAdminOrOwner} 
-        onCreateClick={handleCreateClick} 
+      <TaskListHeader
+        isAdminOrOwner={isAdminOrOwner}
+        onCreateClick={handleCreateClick}
       />
 
       <Box sx={{ flexGrow: 1, minHeight: '65vh', display: 'flex', flexDirection: 'column' }}>
-        <ListFilters 
+        <ListFilters
           search={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search tasks..."
@@ -144,10 +144,10 @@ export default function TasksPage() {
           </Box>
         )}
 
-        <TaskPagination 
-          totalPages={totalPages} 
-          page={page} 
-          onPageChange={handlePageChange} 
+        <TaskPagination
+          totalPages={totalPages}
+          page={page}
+          onPageChange={handlePageChange}
         />
       </Box>
 

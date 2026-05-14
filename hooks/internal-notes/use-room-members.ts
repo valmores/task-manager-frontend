@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { internalNotesService } from '@/lib/services/internalNotesService';
+import { updateMembers } from '@/lib/services/internal-notes-service';
 
 export interface UpdateMembersPayload {
   add?: number[];
@@ -11,7 +11,7 @@ export const useRoomMembers = () => {
 
   const updateMembersMutation = useMutation({
     mutationFn: ({ roomId, payload }: { roomId: number; payload: UpdateMembersPayload }) =>
-      internalNotesService.updateMembers(roomId, payload),
+      updateMembers(roomId, payload),
     onSuccess: () => {
       // Refresh rooms so members_detail stays in sync
       queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LoginForm } from '@/components/auth/login-form';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 
 export default function LoginPage() {
   const router = useRouter();

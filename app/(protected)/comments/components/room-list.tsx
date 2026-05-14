@@ -5,7 +5,7 @@ import { Grid, Box, Typography, Skeleton, Stack } from '@mui/material';
 import { Forum as ForumIcon } from '@mui/icons-material';
 import { NoteRoom, RoomVisibility } from '@/types/internal-notes';
 import { User } from '@/types/user';
-import RoomCard from './RoomCard';
+import RoomCard from './room-card';
 
 interface RoomListProps {
   rooms: NoteRoom[];

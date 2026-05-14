@@ -9,7 +9,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
-import { MessageItem } from './MessageItem';
+import { MessageItem } from './message-item';
 import { InternalNote } from '@/types/internal-notes';
 
 interface MessageListProps {

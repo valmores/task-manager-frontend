@@ -15,8 +15,8 @@ import {
   Email as EmailIcon
 } from '@mui/icons-material';
 import { NoteRoom } from '@/types/internal-notes';
-import VisibilityBadge from './VisibilityBadge';
-import RoomActions from './RoomActions';
+import VisibilityBadge from './visibility-badge';
+import RoomActions from './room-actions';
 
 interface RoomCardProps {
   room: NoteRoom;

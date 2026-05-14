@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useInternalNotesStore } from '../../store/useInternalNotesStore';
+import { useInternalNotesStore } from '../../store/use-internal-notes-store';
 import { NoteRoom } from '../../types/internal-notes';
-import { internalNotesService } from '@/lib/services/internalNotesService';
+import { getRooms, createRoom, updateRoom, deleteRoom } from '@/lib/services/internal-notes-service';
 
 export const useInternalNotes = () => {
   const queryClient = useQueryClient();
@@ -14,15 +14,15 @@ export const useInternalNotes = () => {
     isLoading: loadingRooms,
     isError: isRoomsError,
     error: roomsError,
-    refetch: getRooms,
+    refetch: refetchRooms,
   } = useQuery({
     queryKey: ['internal-notes-rooms'],
-    queryFn: () => internalNotesService.getRooms(),
+    queryFn: () => getRooms(),
   });
 
   // Create Room Mutation
   const createRoomMutation = useMutation({
-    mutationFn: (data: Partial<NoteRoom>) => internalNotesService.createRoom(data),
+    mutationFn: (data: Partial<NoteRoom>) => createRoom(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
     },
@@ -31,7 +31,7 @@ export const useInternalNotes = () => {
   // Update Room Mutation
   const updateRoomMutation = useMutation({
     mutationFn: ({ roomId, data }: { roomId: number; data: Partial<NoteRoom> }) =>
-      internalNotesService.updateRoom(roomId, data),
+      updateRoom(roomId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
     },
@@ -39,7 +39,7 @@ export const useInternalNotes = () => {
 
   // Delete Room Mutation
   const deleteRoomMutation = useMutation({
-    mutationFn: (roomId: number) => internalNotesService.deleteRoom(roomId),
+    mutationFn: (roomId: number) => deleteRoom(roomId),
     onSuccess: (_, roomId) => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
       if (selectedRoomId === roomId) {
@@ -66,7 +66,7 @@ export const useInternalNotes = () => {
       updateRoomMutation.isPending ||
       deleteRoomMutation.isPending,
     error: isRoomsError ? (roomsError as Error).message : null,
-    getRooms,
+    getRooms: refetchRooms,
     selectRoom,
     createRoom: (data: Partial<NoteRoom>) => createRoomMutation.mutateAsync(data),
     updateRoom: (roomId: number, data: Partial<NoteRoom>) =>

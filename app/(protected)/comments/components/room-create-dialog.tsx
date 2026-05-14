@@ -16,7 +16,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import InfoIcon from '@mui/icons-material/Info';
 import { RoomVisibility, NoteRoom } from '@/types/internal-notes';
 
-import { useRoomCreateForm } from '@/hooks/internal-notes/useRoomCreateForm';
+import { useRoomCreateForm } from '@/hooks/internal-notes/use-room-create-form';
 import { VisibilitySelector } from './room-create/VisibilitySelector';
 import { ProjectSelector } from './room-create/ProjectSelector';
 import { VisibilityInfo } from './room-create/VisibilityInfo';

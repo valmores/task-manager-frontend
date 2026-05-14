@@ -7,13 +7,13 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 import { AdminUser } from '@/types/task';
 import { AdminUserModal } from './components/admin-user-modal';
-import { AdminHeader } from './components/AdminHeader';
-import { AdminFilters } from './components/AdminFilters';
-import { AdminUsersTable } from './components/AdminUsersTable';
-import { StatusConfirmDialog } from './components/StatusConfirmDialog';
+import { AdminHeader } from './components/admin-header';
+import { AdminFilters } from './components/admin-filters';
+import { AdminUsersTable } from './components/admin-users-table';
+import { StatusConfirmDialog } from './components/status-confirm-dialog';
 
 import { useAdminUsers, useUpdateAdminUser, useDeactivateUser } from '@/hooks/users/use-admin-users';
 

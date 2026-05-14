@@ -12,7 +12,7 @@ import { Task } from '@/types/task';
 import { useCreateTask, useUpdateTask } from '@/hooks/tasks/use-tasks';
 import { useProjects } from '@/hooks/projects/use-projects';
 import { useUsers } from '@/hooks/users/use-users';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 import { useCreateNote } from '@/hooks/tasks/use-notes';
 
 // Sub-components

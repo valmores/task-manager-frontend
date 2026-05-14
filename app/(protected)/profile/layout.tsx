@@ -3,7 +3,7 @@
 import React from "react";
 import { Box, Container, Paper, Typography, Avatar, Stack, Tabs, Tab } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/store/use-auth-store";
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();

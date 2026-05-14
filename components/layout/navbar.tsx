@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AppBar, Toolbar, Container, useTheme } from '@mui/material';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 import { useQueryClient } from '@tanstack/react-query';
 
 // Sub-components
@@ -55,9 +55,9 @@ export function Navbar() {
         <Container maxWidth="lg">
           <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
             <NavLogo onToggle={() => setIsDrawerOpen(true)} />
-            
+
             <DesktopNav links={navLinks} isActive={isActive} />
-            
+
             <UserMenu user={user} onLogout={handleLogout} />
           </Toolbar>
         </Container>

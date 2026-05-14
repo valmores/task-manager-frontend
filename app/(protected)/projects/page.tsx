@@ -11,13 +11,13 @@ import {
   Alert,
   Pagination,
 } from '@mui/material';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/use-auth-store';
 import { useProjects, useDeleteProject } from '@/hooks/projects/use-projects';
 import { ProjectFormModal } from './components/project-form-modal';
 import { Project } from '@/types/task';
-import DeleteProjectDialog from './components/DeleteProjectDialog';
-import ProjectCard from "./components/ProjectCard";
-import ProjectsHeader from './components/ProjectsHeader';
+import DeleteProjectDialog from './components/delete-project-dialog';
+import ProjectCard from "./components/project-card";
+import ProjectsHeader from './components/projects-header';
 import { ListFilters } from '@/components/ui/list-filters';
 
 export default function ProjectsPage() {
@@ -36,7 +36,7 @@ export default function ProjectsPage() {
   // Filtering Logic
   const filteredProjects = React.useMemo(() => {
     if (!projects) return [];
-    return projects.filter((project) => 
+    return projects.filter((project) =>
       project.name.toLowerCase().includes(search.toLowerCase()) ||
       project.description?.toLowerCase().includes(search.toLowerCase()) ||
       project.created_by.toLowerCase().includes(search.toLowerCase())
@@ -107,7 +107,7 @@ export default function ProjectsPage() {
 
       <Box sx={{ flexGrow: 1, minHeight: '60vh', display: 'flex', flexDirection: 'column' }}>
 
-        <ListFilters 
+        <ListFilters
           search={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search projects by name, description, or owner..."

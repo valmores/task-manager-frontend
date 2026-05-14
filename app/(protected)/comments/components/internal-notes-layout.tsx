@@ -18,18 +18,18 @@ import {
   Menu as MenuIcon,
   Forum as ForumIcon
 } from '@mui/icons-material';
-import { useInternalNotes } from '@/hooks/internal-notes/useInternalNotes';
-import { useMessages } from '@/hooks/internal-notes/useMessages';
-import { useRoomMembers } from '@/hooks/internal-notes/useRoomMembers';
+import { useInternalNotes } from '@/hooks/internal-notes/use-internal-notes';
+import { useMessages } from '@/hooks/internal-notes/use-messages';
+import { useRoomMembers } from '@/hooks/internal-notes/use-room-members';
 import { useProjects } from '@/hooks/projects/use-projects';
-import { useAllUsers } from '@/hooks/users/useAllUsers';
-import { useAuthStore } from '@/store/useAuthStore';
-import RoomList from './RoomList';
-import RoomHeader from './RoomHeader';
-import MessageList from './MessageList';
-import MessageForm from './MessageForm';
-import RoomCreateDialog from './RoomCreateDialog';
-import ManageMembersDialog from './ManageMembersDialog';
+import { useAllUsers } from '@/hooks/users/use-all-users';
+import { useAuthStore } from '@/store/use-auth-store';
+import RoomList from './room-list';
+import RoomHeader from './room-header';
+import MessageList from './message-list';
+import MessageForm from './message-form';
+import RoomCreateDialog from './room-create-dialog';
+import ManageMembersDialog from './manage-members-dialog';
 import { NoteRoom } from '@/types/internal-notes';
 
 const SIDEBAR_WIDTH = 320;

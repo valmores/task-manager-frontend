@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminUser } from '@/types/task';
-import { getAdminUsers, createAdminUser, updateAdminUser, deactivateUser } from '@/lib/services/userService';
+import { getAdminUsers, createAdminUser, updateAdminUser, deactivateUser } from '@/lib/services/user-service';
 
 export function useAdminUsers() {
   return useQuery<AdminUser[]>({

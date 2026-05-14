@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Project, CreateProjectData } from '@/types/task';
-import { getProjects, createProject, updateProject, deleteProject } from '@/lib/services/projectService';
+import { getProjects, createProject, updateProject, deleteProject } from '@/lib/services/project-service';
 
 export function useProjects() {
   return useQuery<Project[]>({
