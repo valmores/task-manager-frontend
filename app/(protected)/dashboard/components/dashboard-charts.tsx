@@ -54,23 +54,48 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
           Task Status Distribution
         </Typography>
-        <Box sx={{ width: '100%', height: 300, display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{
+          width: '100%',
+          height: 300,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative'
+        }}>
           {statusData.length > 0 ? (
-            <PieChart
-              series={[
-                {
-                  data: statusData,
-                  highlightScope: { fade: 'series', highlight: 'item' },
-                  innerRadius: 60,
-                  outerRadius: 100,
-                  paddingAngle: 5,
-                  cornerRadius: 5,
-                },
-              ]}
-              height={250}
-              margin={{ right: 5 }}
-              slotProps={isMobile ? {} : { legend: {} }}
-            />
+            <>
+              <PieChart
+                series={[
+                  {
+                    data: statusData,
+                    highlightScope: { fade: 'series', highlight: 'item' },
+                    innerRadius: 65,
+                    outerRadius: 100,
+                    paddingAngle: 5,
+                    cornerRadius: 5,
+                  },
+                ]}
+                height={250}
+                margin={{ top: 0, bottom: 15, left: 0, right: 0 }}
+                slotProps={{
+                  legend: {
+                    direction: 'horizontal',
+                    position: {
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    },
+                  },
+                }}
+              />
+              <Box sx={{ position: 'absolute', textAlign: 'center', pointerEvents: 'none', mt: -5 }}>
+                <Typography variant="h4" sx={{ fontWeight: 800, lineHeight: 1 }}>
+                  {tasks.length}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                  Total
+                </Typography>
+              </Box>
+            </>
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
               <Typography color="text.secondary">No task data available</Typography>
