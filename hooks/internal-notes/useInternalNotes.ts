@@ -6,46 +6,35 @@ import { internalNotesService } from '@/lib/services/internalNotesService';
 
 export const useInternalNotes = () => {
   const queryClient = useQueryClient();
-  const { 
-    selectedRoomId, 
-    setSelectedRoomId, 
-    getSelectedRoom,
-    setRooms
-  } = useInternalNotesStore();
+  const { selectedRoomId, setSelectedRoomId } = useInternalNotesStore();
 
-  // Fetch Rooms with React Query
-  const { 
-    data: rooms = [], 
-    isLoading: loadingRooms, 
+  // React Query is the single source of truth for room data
+  const {
+    data: rooms = [],
+    isLoading: loadingRooms,
     isError: isRoomsError,
     error: roomsError,
-    refetch: getRooms
+    refetch: getRooms,
   } = useQuery({
     queryKey: ['internal-notes-rooms'],
-    queryFn: async () => {
-      const response = await internalNotesService.getRooms();
-      // Sync with store for components still relying on it
-      setRooms(response);
-      return response;
-    }
+    queryFn: () => internalNotesService.getRooms(),
   });
 
   // Create Room Mutation
   const createRoomMutation = useMutation({
     mutationFn: (data: Partial<NoteRoom>) => internalNotesService.createRoom(data),
-    onSuccess: (response) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
-      return response;
-    }
+    },
   });
 
   // Update Room Mutation
   const updateRoomMutation = useMutation({
-    mutationFn: ({ roomId, data }: { roomId: number; data: Partial<NoteRoom> }) => 
+    mutationFn: ({ roomId, data }: { roomId: number; data: Partial<NoteRoom> }) =>
       internalNotesService.updateRoom(roomId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-rooms'] });
-    }
+    },
   });
 
   // Delete Room Mutation
@@ -56,22 +45,32 @@ export const useInternalNotes = () => {
       if (selectedRoomId === roomId) {
         setSelectedRoomId(null);
       }
-    }
+    },
   });
 
-  const selectRoom = useCallback((roomId: number | null) => {
-    setSelectedRoomId(roomId);
-  }, [setSelectedRoomId]);
+  const selectRoom = useCallback(
+    (roomId: number | null) => {
+      setSelectedRoomId(roomId);
+    },
+    [setSelectedRoomId]
+  );
+
+  const selectedRoom = rooms.find((r) => r.id === selectedRoomId);
 
   return {
     rooms,
-    selectedRoom: getSelectedRoom(),
-    loading: loadingRooms || createRoomMutation.isPending || updateRoomMutation.isPending || deleteRoomMutation.isPending,
+    selectedRoom,
+    loading:
+      loadingRooms ||
+      createRoomMutation.isPending ||
+      updateRoomMutation.isPending ||
+      deleteRoomMutation.isPending,
     error: isRoomsError ? (roomsError as Error).message : null,
     getRooms,
     selectRoom,
     createRoom: (data: Partial<NoteRoom>) => createRoomMutation.mutateAsync(data),
-    updateRoom: (roomId: number, data: Partial<NoteRoom>) => updateRoomMutation.mutateAsync({ roomId, data }),
-    deleteRoom: (roomId: number) => deleteRoomMutation.mutateAsync(roomId)
+    updateRoom: (roomId: number, data: Partial<NoteRoom>) =>
+      updateRoomMutation.mutateAsync({ roomId, data }),
+    deleteRoom: (roomId: number) => deleteRoomMutation.mutateAsync(roomId),
   };
 };

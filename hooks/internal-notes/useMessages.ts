@@ -7,83 +7,79 @@ import { useAuthStore } from '@/store/useAuthStore';
 export const useMessages = () => {
   const queryClient = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
-  const { 
-    selectedRoomId,
-    setMessages 
-  } = useInternalNotesStore();
+  const { selectedRoomId } = useInternalNotesStore();
 
-  // Fetch Messages with React Query
-  const { 
-    data: messages = [], 
-    isLoading: loadingMessages, 
+  // React Query is the single source of truth for message data
+  const {
+    data: messages = [],
+    isLoading: loadingMessages,
     isError: isMessagesError,
     error: messagesError,
-    refetch: getMessages
+    refetch: getMessages,
   } = useQuery({
     queryKey: ['internal-notes-messages', selectedRoomId],
-    queryFn: async () => {
-      if (!selectedRoomId) return [];
-      const response = await internalNotesService.getMessages(selectedRoomId);
-      // Sync with store for components still relying on it
-      setMessages(response);
-      return response;
-    },
+    queryFn: () => internalNotesService.getMessages(selectedRoomId!),
     enabled: !!selectedRoomId,
   });
 
   // Create Message Mutation with Optimistic Updates
   const createMessageMutation = useMutation({
-    mutationFn: ({ roomId, content }: { roomId: number; content: string }) => 
+    mutationFn: ({ roomId, content }: { roomId: number; content: string }) =>
       internalNotesService.createMessage(roomId, content),
-    
-    // When mutate is called:
+
+    // Cancel any outgoing refetches so they don't overwrite our optimistic update
     onMutate: async (newMessage) => {
-      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
 
-      // Snapshot the previous value
-      const previousMessages = queryClient.getQueryData<InternalNote[]>(['internal-notes-messages', selectedRoomId]);
+      const previousMessages = queryClient.getQueryData<InternalNote[]>([
+        'internal-notes-messages',
+        selectedRoomId,
+      ]);
 
-      // Optimistically update to the new value
       if (previousMessages) {
         const optimisticMessage: InternalNote = {
-          id: -Date.now(), // Temporary ID
+          id: -Date.now(), // Temporary negative ID
           content: newMessage.content,
           room: newMessage.roomId,
-          author: currentUser?.id || 0, 
+          author: currentUser?.id || 0,
           author_email: currentUser?.email || 'You',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           is_edited: false,
         };
-        
-        queryClient.setQueryData(['internal-notes-messages', selectedRoomId], [...previousMessages, optimisticMessage]);
+
+        queryClient.setQueryData(
+          ['internal-notes-messages', selectedRoomId],
+          [...previousMessages, optimisticMessage]
+        );
       }
 
-      // Return a context object with the snapshotted value
       return { previousMessages };
     },
 
-    // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (err, newMessage, context) => {
+    // Roll back on error
+    onError: (_err, _newMessage, context) => {
       if (context?.previousMessages) {
-        queryClient.setQueryData(['internal-notes-messages', selectedRoomId], context.previousMessages);
+        queryClient.setQueryData(
+          ['internal-notes-messages', selectedRoomId],
+          context.previousMessages
+        );
       }
     },
 
-    // Always refetch after error or success to keep server in sync
+    // Always sync with server after settle
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
-    }
+    },
   });
 
   // Update Message Mutation
   const updateMessageMutation = useMutation({
-    mutationFn: ({ messageId, content }: { messageId: number; content: string }) => 
+    mutationFn: ({ messageId, content }: { messageId: number; content: string }) =>
       internalNotesService.updateMessage(messageId, content),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
-    }
+    },
   });
 
   // Delete Message Mutation
@@ -91,20 +87,19 @@ export const useMessages = () => {
     mutationFn: (messageId: number) => internalNotesService.deleteMessage(messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal-notes-messages', selectedRoomId] });
-    }
+    },
   });
 
   return {
     messages,
-    loading: loadingMessages, // Don't include mutation pending here for smoother UI
+    loading: loadingMessages,
     isSubmitting: createMessageMutation.isPending,
     error: isMessagesError ? (messagesError as Error).message : null,
     getMessages,
-    createMessage: (roomId: number, content: string) => 
+    createMessage: (roomId: number, content: string) =>
       createMessageMutation.mutateAsync({ roomId, content }),
-    updateMessage: (messageId: number, content: string) => 
+    updateMessage: (messageId: number, content: string) =>
       updateMessageMutation.mutateAsync({ messageId, content }),
-    deleteMessage: (messageId: number) => 
-      deleteMessageMutation.mutateAsync(messageId),
+    deleteMessage: (messageId: number) => deleteMessageMutation.mutateAsync(messageId),
   };
 };
