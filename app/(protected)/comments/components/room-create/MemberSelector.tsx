@@ -120,6 +120,7 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
             size="small"
             placeholder="Search and add members…"
             slotProps={{
+              ...params.slotProps,
               input: {
                 ...params.slotProps?.input,
                 startAdornment: (
@@ -135,21 +136,24 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
             }}
           />
         )}
-        renderOption={(props, option) => (
-          <Box component="li" {...props} key={option.id}>
-            <Avatar sx={{ width: 28, height: 28, mr: 1.5, fontSize: '0.7rem' }}>
-              {getInitials(option.first_name, option.last_name)}
-            </Avatar>
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {option.first_name} {option.last_name}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {option.email} · {option.role.replace('_', ' ')}
-              </Typography>
+        renderOption={(props, option) => {
+          const { key, ...optionProps } = props;
+          return (
+            <Box component="li" key={key} {...optionProps}>
+              <Avatar sx={{ width: 28, height: 28, mr: 1.5, fontSize: '0.7rem' }}>
+                {getInitials(option.first_name, option.last_name)}
+              </Avatar>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {option.first_name} {option.last_name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {option.email} · {option.role.replace('_', ' ')}
+                </Typography>
+              </Box>
             </Box>
-          </Box>
-        )}
+          );
+        }}
         noOptionsText={
           unselectedUsers.length === 0
             ? 'All users already added'

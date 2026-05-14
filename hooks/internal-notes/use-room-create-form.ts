@@ -143,8 +143,7 @@ export const useRoomCreateForm = (
         name: form.name.trim(),
         visibility: form.visibility,
         project: form.visibility === RoomVisibility.PROJECT_SPECIFIC ? form.project : null,
-        // Only send members for private rooms
-        members: form.visibility === RoomVisibility.PRIVATE ? form.members : [],
+        members: form.members,
       });
 
       // Only reset if we are creating, not editing? 
