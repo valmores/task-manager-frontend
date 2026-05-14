@@ -27,8 +27,6 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
     { id: 3, value: tasks.filter(t => t.status === 'done').length, label: 'Completed', color: theme.palette.success.main },
   ];
 
-  const pieData = statusData.length > 0 ? statusData : [];
-
   // 2. Data for Bar Chart (Tasks by Project)
   const projectMap = new Map<string, number>();
   tasks.forEach(task => {
@@ -38,6 +36,8 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
 
   const projectLabels = Array.from(projectMap.keys());
   const projectValues = Array.from(projectMap.values());
+
+  const nonZeroDataCount = statusData.filter(item => item.value > 0).length;
 
   return (
     <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 3 }}>
@@ -71,12 +71,12 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
                 highlightScope: { fade: 'series', highlight: 'item' },
                 innerRadius: 65,
                 outerRadius: 100,
-                paddingAngle: 5,
-                cornerRadius: 5,
+                paddingAngle: nonZeroDataCount > 1 ? 5 : 0,
+                cornerRadius: nonZeroDataCount > 1 ? 5 : 0,
               },
             ]}
             height={250}
-            margin={{ top: 0, bottom: 40, left: 0, right: 0 }}
+            margin={{ top: 0, bottom: 15, left: 0, right: 0 }}
             slotProps={{
               legend: {
                 direction: 'horizontal',

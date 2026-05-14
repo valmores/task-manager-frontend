@@ -31,7 +31,7 @@ export function Navbar() {
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Projects', href: '/projects' },
     { name: 'Tasks', href: '/tasks' },
-    { name: 'Comments', href: '/comments' },
+    { name: 'Internal Notes', href: '/comments' },
     ...(user?.role === 'admin' ? [{ name: 'Admin', href: '/admin' }] : []),
   ];
 

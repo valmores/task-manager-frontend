@@ -175,20 +175,7 @@ export function LoginForm() {
         )}
       </Button>
 
-      <Box sx={{ textAlign: 'center' }}>
-        <Typography variant="body2" color="text.secondary">
-          Don&apos;t have an account?{' '}
-          <MuiLink
-            component={NextLink}
-            href="/register"
-            underline="hover"
-            color="primary"
-            sx={{ fontWeight: 600 }}
-          >
-            Sign up
-          </MuiLink>
-        </Typography>
-      </Box>
+
     </Box>
   );
 }
