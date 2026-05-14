@@ -25,7 +25,9 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
     { id: 1, value: tasks.filter(t => t.status === 'in_progress').length, label: 'In Progress', color: theme.palette.primary.main },
     { id: 2, value: tasks.filter(t => t.status === 'on_hold').length, label: 'On Hold', color: theme.palette.warning.main },
     { id: 3, value: tasks.filter(t => t.status === 'done').length, label: 'Completed', color: theme.palette.success.main },
-  ].filter(item => item.value > 0);
+  ];
+
+  const pieData = statusData.length > 0 ? statusData : [];
 
   // 2. Data for Bar Chart (Tasks by Project)
   const projectMap = new Map<string, number>();
@@ -62,45 +64,37 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
           alignItems: 'center',
           position: 'relative'
         }}>
-          {statusData.length > 0 ? (
-            <>
-              <PieChart
-                series={[
-                  {
-                    data: statusData,
-                    highlightScope: { fade: 'series', highlight: 'item' },
-                    innerRadius: 65,
-                    outerRadius: 100,
-                    paddingAngle: 5,
-                    cornerRadius: 5,
-                  },
-                ]}
-                height={250}
-                margin={{ top: 0, bottom: 15, left: 0, right: 0 }}
-                slotProps={{
-                  legend: {
-                    direction: 'horizontal',
-                    position: {
-                      vertical: 'bottom',
-                      horizontal: 'center',
-                    },
-                  },
-                }}
-              />
-              <Box sx={{ position: 'absolute', textAlign: 'center', pointerEvents: 'none', mt: -5 }}>
-                <Typography variant="h4" sx={{ fontWeight: 800, lineHeight: 1 }}>
-                  {tasks.length}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Total
-                </Typography>
-              </Box>
-            </>
-          ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-              <Typography color="text.secondary">No task data available</Typography>
-            </Box>
-          )}
+          <PieChart
+            series={[
+              {
+                data: statusData,
+                highlightScope: { fade: 'series', highlight: 'item' },
+                innerRadius: 65,
+                outerRadius: 100,
+                paddingAngle: 5,
+                cornerRadius: 5,
+              },
+            ]}
+            height={250}
+            margin={{ top: 0, bottom: 40, left: 0, right: 0 }}
+            slotProps={{
+              legend: {
+                direction: 'horizontal',
+                position: {
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                },
+              },
+            }}
+          />
+          <Box sx={{ position: 'absolute', textAlign: 'center', pointerEvents: 'none', mt: -5 }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, lineHeight: 1 }}>
+              {tasks.length}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+              Total
+            </Typography>
+          </Box>
         </Box>
       </Paper>
 
@@ -120,24 +114,18 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
           Workload by Project
         </Typography>
         <Box sx={{ width: '100%', height: 300 }}>
-          {projectLabels.length > 0 ? (
-            <BarChart
-              xAxis={[{ scaleType: 'band', data: projectLabels, label: 'Projects' }]}
-              series={[
-                {
-                  data: projectValues,
-                  label: 'Number of Tasks',
-                  color: theme.palette.primary.main,
-                }
-              ]}
-              height={250}
-              margin={{ top: 20, bottom: 50, left: 40, right: 10 }}
-            />
-          ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-              <Typography color="text.secondary">No project data available</Typography>
-            </Box>
-          )}
+          <BarChart
+            xAxis={[{ scaleType: 'band', data: projectLabels, label: 'Projects' }]}
+            series={[
+              {
+                data: projectValues,
+                label: 'Number of Tasks',
+                color: theme.palette.primary.main,
+              }
+            ]}
+            height={250}
+            margin={{ top: 20, bottom: 50, left: 40, right: 10 }}
+          />
         </Box>
       </Paper>
     </Box>

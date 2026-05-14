@@ -92,9 +92,7 @@ export default function DashboardPage() {
         </Grid>
       </Grid>
 
-      {tasks && tasks.length > 0 && (
-        <DashboardCharts tasks={tasks} />
-      )}
+      <DashboardCharts tasks={tasks || []} />
 
       <TaskFormModal
         open={isModalOpen}
