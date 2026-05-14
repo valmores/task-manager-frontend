@@ -1,12 +1,10 @@
-export interface Project {
-  id: number;
-  name: string;
-  description?: string;
-  task_count?: number;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-}
+// ── Re-exports for backward compatibility ──────────────────────────────
+// Types that were moved to their own domain files.
+// Existing imports from '@/types/task' will continue to work.
+export type { Project, CreateProjectData } from './project';
+export type { UserOption, AdminUser } from './user';
+
+// ── Task domain types ──────────────────────────────────────────────────
 
 export interface Task {
   id: number;
@@ -35,33 +33,10 @@ export interface TaskNote {
   created_at: string;
 }
 
-export interface CreateProjectData {
-  name: string;
-  description?: string;
-}
-
 export interface CreateTaskData {
   title: string;
   description?: string;
   priority: string;
   due_date: string | null;
   status?: string;
-}
-
-export interface UserOption {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: string;
-}
-
-export interface AdminUser {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: 'admin' | 'project_owner' | 'user';
-  is_active: boolean;
-  date_joined: string;
 }

@@ -1,4 +1,5 @@
 import api from '@/lib/api';
+import { User } from '@/types/user';
 
 export interface RegisterPayload {
   first_name: string;
@@ -12,23 +13,14 @@ interface AuthTokens {
   refresh: string;
 }
 
-// Must match the User interface in useAuthStore to satisfy setAuth's type
-export interface UserProfile {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: 'admin' | 'project_owner' | 'user';
-}
-
 /**
  * Authenticate a user and return their profile + tokens.
  */
-export async function login(email: string, password: string): Promise<{ profile: UserProfile; access: string; refresh: string }> {
+export async function login(email: string, password: string): Promise<{ profile: User; access: string; refresh: string }> {
   const loginRes = await api.post<AuthTokens>('/users/login/', { email, password });
   const { access, refresh } = loginRes.data;
 
-  const profileRes = await api.get<UserProfile>('/users/user-profile/', {
+  const profileRes = await api.get<User>('/users/user-profile/', {
     headers: { Authorization: `Bearer ${access}` },
   });
 
