@@ -82,6 +82,10 @@ export const InternalNotesLayout: React.FC = () => {
     )
   );
 
+  const canCreate = !!(
+    currentUser && (currentUser.role === 'admin' || currentUser.role === 'project_owner')
+  );
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -119,22 +123,24 @@ export const InternalNotesLayout: React.FC = () => {
         <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
           Internal Notes
         </Typography>
-        <Tooltip title="Create New Room">
-          <IconButton
-            size="small"
-            onClick={() => {
-              setRoomToEdit(null);
-              setDialogOpen(true);
-            }}
-            sx={{
-              bgcolor: 'primary.main',
-              color: 'white',
-              '&:hover': { bgcolor: 'primary.dark' }
-            }}
-          >
-            <AddIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        {canCreate && (
+          <Tooltip title="Create New Room">
+            <IconButton
+              size="small"
+              onClick={() => {
+                setRoomToEdit(null);
+                setDialogOpen(true);
+              }}
+              sx={{
+                bgcolor: 'primary.main',
+                color: 'white',
+                '&:hover': { bgcolor: 'primary.dark' }
+              }}
+            >
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
       <Divider />
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
@@ -268,7 +274,7 @@ export const InternalNotesLayout: React.FC = () => {
       </Box>
 
       {/* Floating Action Button for mobile */}
-      {isMobile && (
+      {isMobile && canCreate && (
         <Fab
           color="primary"
           aria-label="add"
@@ -297,6 +303,7 @@ export const InternalNotesLayout: React.FC = () => {
         }}
         loading={loadingRooms}
         error={roomsError || undefined}
+        canCreate={canCreate}
         projects={projects}
         users={allUsers}
       />
