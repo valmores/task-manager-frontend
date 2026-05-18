@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/use-auth-store";
 import { useChangePassword } from "@/hooks/users/use-change-password";
 
 import UserInfo from "./components/user-info";
+import ProfileSignature from "./components/profile-signature/profile-signature";
 import ChangePassword from "./components/change-password";
 
 export default function ProfilePage() {
@@ -102,6 +103,11 @@ export default function ProfilePage() {
                 onChange={handleUserChange}
                 onSave={handleSaveProfile}
             />
+
+            <Divider />
+
+            {/* Default Signature Drawing/Preview */}
+            <ProfileSignature />
 
             <Divider />
 
