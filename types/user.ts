@@ -7,6 +7,7 @@ export interface User {
   first_name: string;
   last_name: string;
   role: 'admin' | 'project_owner' | 'user';
+  signature?: string | null;
 }
 
 /**

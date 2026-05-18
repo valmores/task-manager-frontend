@@ -20,6 +20,8 @@ export interface Task {
   created_by: string;
   created_at: string;
   updated_at: string;
+  signature?: string | null;
+  signed_at?: string | null;
   notes?: TaskNote[];
 }
 
