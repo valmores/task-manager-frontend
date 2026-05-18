@@ -62,3 +62,11 @@ export async function deactivateUser(id: number): Promise<AdminUser> {
 export async function changePassword(data: ChangePasswordPayload): Promise<void> {
   await api.post('/users/change-password/', data);
 }
+
+/**
+ * Update the current user's profile information (including signature).
+ */
+export async function updateProfile(data: { signature?: string | null; first_name?: string; last_name?: string }): Promise<any> {
+  const response = await api.patch('/users/user-profile/', data);
+  return response.data;
+}
