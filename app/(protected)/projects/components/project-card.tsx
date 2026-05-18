@@ -21,6 +21,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import FolderIcon from "@mui/icons-material/Folder";
 
 import { Project } from "@/types/task";
+import { ExportPdfButton } from "./export-pdf-button";
 
 type Props = {
     project: Project;
@@ -28,6 +29,7 @@ type Props = {
     onDelete: (project: Project) => void;
     onViewTasks: (projectId: number) => void;
     canEdit?: boolean;
+    canExport?: boolean;
 };
 
 export default function ProjectCard({
@@ -36,6 +38,7 @@ export default function ProjectCard({
     onDelete,
     onViewTasks,
     canEdit,
+    canExport,
 }: Props) {
     return (
         <Card
@@ -120,29 +123,35 @@ export default function ProjectCard({
                     View Tasks
                 </Button>
 
-                {canEdit && (
-                    <Box>
-                        <Tooltip title="Edit">
-                            <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={() => onEdit(project)}
-                            >
-                                <EditIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {canExport && (
+                        <ExportPdfButton project={project} />
+                    )}
 
-                        <Tooltip title="Delete">
-                            <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => onDelete(project)}
-                            >
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
-                )}
+                    {canEdit && (
+                        <>
+                            <Tooltip title="Edit">
+                                <IconButton
+                                    size="small"
+                                    color="primary"
+                                    onClick={() => onEdit(project)}
+                                >
+                                    <EditIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Delete">
+                                <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => onDelete(project)}
+                                >
+                                    <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        </>
+                    )}
+                </Box>
             </CardActions>
         </Card>
     );

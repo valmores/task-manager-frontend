@@ -131,6 +131,7 @@ export default function ProjectsPage() {
                     onDelete={handleDeleteClick}
                     onViewTasks={handleViewTasks}
                     canEdit={user?.role === "admin"}
+                    canExport={isAdminOrOwner}
                   />
                 </Grid>
               ))}
