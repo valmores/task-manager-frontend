@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { Project, CreateProjectData } from '@/types/task';
+import { Project, CreateProjectData, Task } from '@/types/task';
 
 /**
  * Fetch all projects accessible by the current user.
@@ -31,3 +31,13 @@ export async function updateProject(id: number, data: Partial<CreateProjectData>
 export async function deleteProject(id: number): Promise<void> {
   await api.delete(`/tasks/projects/${id}/`);
 }
+
+
+/**
+ * Fetch tasks for a specific project.
+ */
+export async function getProjectTasks(projectId: number): Promise<Task[]> {
+  const response = await api.get<Task[]>(`/tasks/?project=${projectId}`);
+  return response.data;
+}
+
