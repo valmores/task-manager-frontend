@@ -8,6 +8,7 @@ interface TaskFormActionsProps {
   isLoading: boolean;
   isEditMode: boolean;
   isSubmitDisabled: boolean;
+  submitLabel?: string;
 }
 
 export const TaskFormActions: React.FC<TaskFormActionsProps> = ({
@@ -15,6 +16,7 @@ export const TaskFormActions: React.FC<TaskFormActionsProps> = ({
   isLoading,
   isEditMode,
   isSubmitDisabled,
+  submitLabel,
 }) => {
   return (
     <DialogActions sx={{ p: 3 }}>
@@ -25,7 +27,11 @@ export const TaskFormActions: React.FC<TaskFormActionsProps> = ({
         disabled={isSubmitDisabled || isLoading}
         sx={{ px: 4, py: 1, borderRadius: 2, fontWeight: 700, minWidth: 140 }}
       >
-        {isLoading ? <CircularProgress size={24} color="inherit" /> : (isEditMode ? 'Update Task' : 'Create Task')}
+        {isLoading ? (
+          <CircularProgress size={24} color="inherit" />
+        ) : (
+          submitLabel || (isEditMode ? 'Update Task' : 'Create Task')
+        )}
       </Button>
     </DialogActions>
   );

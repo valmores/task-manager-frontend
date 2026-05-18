@@ -22,6 +22,10 @@ import { TaskFormCoreFields } from './task-form/task-form-core-fields';
 import { TaskFormMetadataFields } from './task-form/task-form-metadata-fields';
 import { TaskFormStatusField } from './task-form/task-form-status-field';
 import { TaskFormActions } from './task-form/task-form-actions';
+import { Typography } from '@mui/material';
+import { TaskSignatureDialog } from './task-form/task-signature-dialog/task-signature-dialog';
+import { useUpdateProfile } from '@/hooks/users/use-update-profile';
+import { SignatureImagePreview } from '@/components/ui/signature-image-preview';
 
 interface TaskFormModalProps {
   open: boolean;
@@ -62,8 +66,12 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [noteContent, setNoteContent] = useState('');
   const createNoteMutation = useCreateNote();
+  const updateProfileMutation = useUpdateProfile();
 
-  const isLoading = createTaskMutation.isPending || updateTaskMutation.isPending;
+  const [signatureDialogOpen, setSignatureDialogOpen] = useState(false);
+  const [pendingSubmitData, setPendingSubmitData] = useState<any>(null);
+
+  const isLoading = createTaskMutation.isPending || updateTaskMutation.isPending || updateProfileMutation.isPending;
 
   useEffect(() => {
     if (task) {
@@ -103,6 +111,40 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
     }
   };
 
+  const handleSignatureConfirm = async (signatureDataUrl: string, saveToProfile: boolean) => {
+    setSignatureDialogOpen(false);
+
+    if (saveToProfile) {
+      try {
+        await updateProfileMutation.mutateAsync({ signature: signatureDataUrl });
+      } catch (err) {
+        console.error('Failed to save signature to profile:', err);
+      }
+    }
+
+    const finalSubmissionData = {
+      ...pendingSubmitData,
+      signature: signatureDataUrl,
+      signed_at: new Date().toISOString(),
+    };
+
+    const mutationOptions = {
+      onSuccess: (data: any) => {
+        if (onSubmit) onSubmit(data);
+        onClose();
+      },
+      onError: (error: any) => {
+        if (error.response?.data) {
+          setErrors(error.response.data);
+        }
+      }
+    };
+
+    if (task) {
+      updateTaskMutation.mutate({ id: task.id, data: finalSubmissionData }, mutationOptions);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -113,6 +155,11 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
       assigned_to: formData.assigned_to ? parseInt(formData.assigned_to) : null,
     };
 
+    if (isRegularUser && isEditMode && formData.status === 'done') {
+      setPendingSubmitData(submissionData);
+      setSignatureDialogOpen(true);
+      return;
+    }
 
     const mutationOptions = {
       onSuccess: (data: any) => {
@@ -216,6 +263,36 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
               />
             )}
 
+            {isEditMode && task?.signature && (
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2.5,
+                  border: `1px dashed ${theme.palette.divider}`,
+                  backgroundColor: theme.palette.action.hover,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  Completion Signature
+                </Typography>
+                
+                <SignatureImagePreview
+                  src={task.signature}
+                  maxHeight={80}
+                />
+
+                {task.signed_at && (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5 }}>
+                    Signed on {new Date(task.signed_at).toLocaleString()}
+                  </Typography>
+                )}
+              </Box>
+            )}
+
           </Stack>
         </DialogContent>
 
@@ -224,8 +301,16 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({ open, onClose, onS
           isLoading={isLoading}
           isEditMode={isEditMode}
           isSubmitDisabled={!formData.title}
+          submitLabel={isRegularUser && isEditMode && formData.status === 'done' ? 'Sign & Update' : undefined}
         />
       </Box>
+      <TaskSignatureDialog
+        open={signatureDialogOpen}
+        taskTitle={formData.title}
+        savedSignature={user?.signature || null}
+        onConfirm={handleSignatureConfirm}
+        onCancel={() => setSignatureDialogOpen(false)}
+      />
     </Dialog>
   );
 };
