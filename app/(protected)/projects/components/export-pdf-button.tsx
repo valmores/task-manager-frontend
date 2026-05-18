@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Button, Tooltip, CircularProgress } from '@mui/material';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { Project } from '@/types/task';
-import { getProjectTasks } from '@/lib/services/task-service';
+import { getProjectTasks } from '@/lib/services/project-service';
 import { generateProjectPdf } from '@/lib/utils/generate-project-pdf';
 
 interface ExportPdfButtonProps {
