@@ -37,7 +37,7 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
   const projectLabels = Array.from(projectMap.keys());
   const projectValues = Array.from(projectMap.values());
 
-  const nonZeroDataCount = statusData.filter(item => item.value > 0).length;
+  const activeStatusData = statusData.filter(item => item.value > 0);
 
   return (
     <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 3 }}>
@@ -67,12 +67,12 @@ export function DashboardCharts({ tasks }: DashboardChartsProps) {
           <PieChart
             series={[
               {
-                data: statusData,
+                data: activeStatusData,
                 highlightScope: { fade: 'series', highlight: 'item' },
                 innerRadius: 65,
                 outerRadius: 100,
-                paddingAngle: nonZeroDataCount > 1 ? 5 : 0,
-                cornerRadius: nonZeroDataCount > 1 ? 5 : 0,
+                paddingAngle: activeStatusData.length > 1 ? 5 : 0,
+                cornerRadius: activeStatusData.length > 1 ? 5 : 0,
               },
             ]}
             height={250}
